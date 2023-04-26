@@ -1,0 +1,10 @@
+
+:~  title+'Alzabo'
+    info+'Customizable AI language model.'
+    color+0xa4.1154
+    base+'alzabo'
+    glob-ames+[~zod 0v0]
+    version+[0 0 1]
+    website+'https://github.com/uqbar-core/alzabo'
+    license+'MIT'
+==
