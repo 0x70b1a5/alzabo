@@ -50,8 +50,6 @@
   |=  [m=mark v=vase]
   ^-  (quip card _this)
   |^
-  ~&  >  'got poked'
-  ~&  >  v
   =^  cards  state
     ?+  m  (on-poke:def m v)
       %alzabo-action  (handle-poke !<(action:alz v))
@@ -62,7 +60,10 @@
     |=  act=action:alz
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
-    ~&  >>  act
+    ~&  >  "poked with act:"
+    ~&  >  act
+    ~&  >  "current state:"
+    ~&  >  state
     ?-    -.+.act
         %create
       `state
@@ -75,7 +76,10 @@
         %reset
       `state
         %save-api-key
-      `state
+      =/  key  key.+.+.act
+      ~&  >  'got key'
+      ~&  >  key
+      `state(api-key key)
       ::   %build
       :: =*  ubl
       ::   %~  .  uqbuild
