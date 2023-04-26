@@ -1,5 +1,5 @@
 /-  alz=alzabo
-/+  lib=alzabo
+|%
 ::
 ::  json
 ::
@@ -13,6 +13,7 @@
     |=  =update:alz
     ^-  json
     ?~  update  ~
+    %-  pairs
     ?-    -.update
         %error
       [%error ~]~
@@ -25,7 +26,7 @@
   =,  dejs:format
   |%
   ++  uber-action
-    ^-  $-(json action:lib)
+    ^-  $-(json action:alz)
     %-  ot
     :~  [%collection-name so]
         [%action action]
@@ -58,3 +59,4 @@
         [%where (om so)]
     ==
   --
+--

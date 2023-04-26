@@ -9,7 +9,7 @@
 +$  card  card:agent:gall
 --
 ::
-=|  state-0:al
+=|  state-0:alz
 =*  state  -
 ::
 %-  agent:dbug
@@ -26,7 +26,7 @@
 ::
 ++  on-load
   |=  =old=vase
-  `this(state !<(state-0:al old-vase))
+  `this(state !<(state-0:alz old-vase))
 ::
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
@@ -62,8 +62,8 @@
     |=  act=action:alz
     ^-  (quip card _state)
     ?>  =(our.bowl src.bowl)
-    ~&  >>  -.act
-    ?-    -.act
+    ~&  >>  act
+    ?-    -.+.act
         %create
       `state
         %delete
