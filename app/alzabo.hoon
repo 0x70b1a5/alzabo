@@ -1,10 +1,13 @@
-/-  alz=alzabo
+/-  alz=alzabo,
+    spider
 /+  agentio,
+    strandio,
     dbug,
     default-agent,
     verb,
     lib=alzabo
 ::
+=,  strand=strand:spider
 |%
 +$  card  card:agent:gall
 --
@@ -37,14 +40,23 @@
 ++  on-peek
   |=  p=path
   ^-  (unit (unit cage))
+  |^
   =,  format
   ~&  >>  p
   ?+    +.p  (on-peek:def p)
       [%collections ~]
-    ~
+    ~  :: ``[%json (get "http://localhost:8000/collections")]
       [%collection @ ~]
-    ~
+    ~  :: ``[%json (get "http://localhost:8000/collection/")]
   ==
+  ++  get
+    |=  url=cord
+    ^-  @t
+    =/  m  (strand ,json)
+    ^-  form:m
+    ;<  res=json  bind:m  (fetch-json:strandio url)
+    :: ???
+  --
 ::
 ++  on-poke
   |=  [m=mark v=vase]
@@ -80,40 +92,6 @@
       ~&  >  'got key'
       ~&  >  key
       `state(api-key key)
-      ::   %build
-      :: =*  ubl
-      ::   %~  .  uqbuild
-      ::   :^    bowl
-      ::       [repo-host repo-name branch-name commit-hash]:act
-      ::     build-cache
-      ::   ~
-      :: :: =*  ubl
-      :: ::   %=  ub-lib
-      :: ::       repo-host    repo-host.act
-      :: ::       repo-name    repo-name.act
-      :: ::       branch-name  branch-name.act
-      :: ::       commit-hash  commit-hash.act
-      :: ::   ==
-      :: =/  [built-file=vase =build-state:alz]
-      ::   (build-file:ubl file-path.act)
-      :: :_  state(build-cache build-cache.build-state)
-      :: ?~  poke-src.act  ~
-      :: :_  ~
-      :: ?-    -.poke-src.act
-      ::     %app
-      ::   %+  ~(poke-our pass:io /pokeback/[p.poke-src.act])
-      ::     p.poke-src.act
-      ::   :-  %uqbuild-update
-      ::   !>([%build %& built-file])
-      :: ::
-      ::     %ted
-      ::   %+  ~(poke-our pass:io /pokeback/[p.poke-src.act])
-      ::     %spider
-      ::   :-  %spider-input
-      ::   !>  ^-  [@tatid cage]
-      ::   :+  p.poke-src.act  %uqbuild-update
-      ::   !>([%build %& built-file])
-      :: ==
     ==
   --
 --
