@@ -42,20 +42,21 @@
   ^-  (unit (unit cage))
   |^
   =,  format
+  ~&  >>  'got scried'
   ~&  >>  p
+  =/  base  "http://localhost:8000/api/v1"
   ?+    +.p  (on-peek:def p)
       [%collections ~]
-    ~  :: ``[%json (get "http://localhost:8000/collections")]
+    ``cord+!>((get "{base}/collections"))
       [%collection @ ~]
-    ~  :: ``[%json (get "http://localhost:8000/collection/")]
+    ``cord+!>((get "{base}/collection/{(scow %tas -.+.+.p)}"))
   ==
   ++  get
-    |=  url=cord
-    ^-  @t
-    =/  m  (strand ,json)
+    |=  url=tape
+    =/  m  (strand ,cord)
     ^-  form:m
-    ;<  res=json  bind:m  (fetch-json:strandio url)
-    :: ???
+    ;<  res=cord  bind:m  (fetch-cord:strandio url)
+    (pure:m res)
   --
 ::
 ++  on-poke
