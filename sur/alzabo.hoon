@@ -7,10 +7,13 @@
   ==
 +$  action
   $:  collection-name=@t
-    $%  [%create ~]
-        [%delete ~]
-        [%add-document id=@tas embeddings=@t metadata=(map @tas @t) content=@t]
-        [%query embeddings=@t n-results=@ud where=(map @tas @t)]
+    $%  [%get-collections ~]
+        [%get-collection id=@tas]
+        ::
+        [%create options=@t]
+        [%delete options=@t]
+        [%add-document options=@t]:: id=@tas embeddings=@t metadata=(map @tas @t) content=@t]
+        [%query options=@t]:: embeddings=@t n-results=@ud where=(map @tas @t)]
         [%reset ~]
         ::
         [%save-api-key key=@t]

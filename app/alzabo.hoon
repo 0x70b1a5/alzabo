@@ -7,7 +7,6 @@
     verb,
     lib=alzabo
 ::
-=,  strand=strand:spider
 |%
 +$  card  card:agent:gall
 --
@@ -33,31 +32,42 @@
 ::
 ++  on-leave  on-leave:def
 ++  on-fail   on-fail:def
-++  on-watch  |=  p=path  (on-watch:def p)
-++  on-agent  |=  [w=wire =sign:agent:gall]  (on-agent:def w sign)
-++  on-arvo   |=  [w=wire =sign-arvo:agent:gall]  (on-arvo:def w sign-arvo)
-::
-++  on-peek
+++  on-watch  
   |=  p=path
-  ^-  (unit (unit cage))
-  |^
-  =,  format
-  ~&  >>  'got scried'
-  ~&  >>  p
-  =/  base  "http://localhost:8000/api/v1"
-  ?+    +.p  (on-peek:def p)
-      [%collections ~]
-    ``cord+!>((get "{base}/collections"))
-      [%collection @ ~]
-    ``cord+!>((get "{base}/collection/{(scow %tas -.+.+.p)}"))
+  ?+  p  (on-watch:def p)
+      [%update ~]
+    `this
   ==
-  ++  get
-    |=  url=tape
-    =/  m  (strand ,cord)
-    ^-  form:m
-    ;<  res=cord  bind:m  (fetch-cord:strandio url)
-    (pure:m res)
+++  on-agent  |=  [w=wire =sign:agent:gall]  (on-agent:def w sign)
+++  on-arvo   
+  |=  [w=wire =sign-arvo:agent:gall]
+  ^-  (quip card _this)
+  |^
+  ?+  w  (on-arvo:def w sign-arvo)
+      [%get-collections ~]
+    (return-update 'got-collections')
+  ::
+      [%create-collection ~]
+    (return-update 'created-collection')
+  ==
+  ++  return-update
+    |=  print=@t
+    ?.  ?&  ?=(%khan -.sign-arvo)
+            ?=(%arow -.+.sign-arvo)
+        ==
+        (on-arvo:def w sign-arvo)
+    ?:  ?=(%| -.p.+.sign-arvo)
+      ~&  >  'khan error'
+      ~&  >  +.p.+.sign-arvo
+      !!
+    =+  !<(result=cord q.p.p.+.sign-arvo)
+    ~&  >  print
+    ~&  >  result
+    :: just send the json as a noun
+    :_  this
+    :_  ~  [%give %fact ~[/update] [%json !>(s+result)]]
   --
+++  on-peek   on-peek:def
 ::
 ++  on-poke
   |=  [m=mark v=vase]
@@ -78,21 +88,42 @@
     ~&  >  "current state:"
     ~&  >  state
     ?-    -.+.act
+        %get-collections
+      :_  state
+      :_  ~
+      (request-card /get-collections %get !>(`"{base}/collections"))
+    ::
+        %get-collection
+      :_  state
+      :_  ~
+      (request-card /get-collection %get !>(`"{base}/collection/{(trip +.+.act)}"))
+    ::
         %create
-      `state
+      :_  state
+      :_  ~
+      (request-card /create-collection %post !>(`[(crip "{base}/collections") +.+.act]))
+    ::
         %delete
       `state
+    ::
         %add-document
       `state
+    ::
         %query
       `state
+    ::
         %reset
       `state
+    ::
         %save-api-key
       =/  key  key.+.+.act
       ~&  >  'got key'
       ~&  >  key
       `state(api-key key)
     ==
+  ++  base  "http://localhost:8000/api/v1"
+  ++  request-card
+    |=  [pax=path method=@tas body=vase]
+    [%pass pax %arvo %k %fard %alzabo method %noun body]
   --
 --

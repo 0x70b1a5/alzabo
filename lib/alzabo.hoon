@@ -34,29 +34,32 @@
   ::
   ++  action
     %-  of
-    :~  [%create ul]
-        [%delete ul]
-        [%add-document add-document]
-        [%query query-collection]
+    :~  [%get-collections ul]
+        [%get-collection so]
+    ::
+        [%create so]
+        [%delete so]
+        [%add-document so]
+        [%query so]
     ::
         [%save-api-key so]
     ::
         [%reset ul]
     ==
   ::
-  ++  add-document
-    %-  ot
-    :~  [%id (se %tas)]
-        [%embeddings so]
-        [%metadata (om so)]
-        [%content so]
-    ==
-  ::
-  ++  query-collection
-    %-  ot
-    :~  [%embeddings so]
-        [%n-results ni]
-        [%where (om so)]
-    ==
+  :: ++  add-document
+  ::   %-  ot
+  ::   :~  [%id (se %tas)]
+  ::       [%embeddings so]
+  ::       [%metadata (om so)]
+  ::       [%content so]
+  ::   ==
+  :: ::
+  :: ++  query-collection
+  ::   %-  ot
+  ::   :~  [%embeddings so]
+  ::       [%n-results ni]
+  ::       [%where (om so)]
+  ::   ==
   --
 --
