@@ -5,6 +5,7 @@
 ^-  thread:spider
 |=  url=vase
 ?~  yurl=!<((unit tape) url)  !!
+~&  >>  "GET {u.yurl}"
 =/  m  (strand ,vase)
 ^-  form:m
 ;<  res=cord  bind:m  (fetch-cord:strandio u.yurl)

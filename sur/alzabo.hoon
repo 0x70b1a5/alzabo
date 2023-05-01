@@ -8,8 +8,8 @@
 +$  action
   $:  collection-name=@t
     $%  [%get-collections ~]
-        [%get-collection id=@tas]
         ::
+        [%get-collection options=@t]
         [%create options=@t]
         [%delete options=@t]
         [%add-document options=@t]:: id=@tas embeddings=@t metadata=(map @tas @t) content=@t]
@@ -17,6 +17,7 @@
         [%reset ~]
         ::
         [%save-api-key key=@t]
+        [%create-embeddings text=@t]
     ==
   ==
 --

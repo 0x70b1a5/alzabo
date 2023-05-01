@@ -45,10 +45,25 @@
   |^
   ?+  w  (on-arvo:def w sign-arvo)
       [%get-collections ~]
-    (return-update 'got-collections')
+    (return-update 'got collections')
+  ::
+      [%get-collection ~]
+    (return-update 'got collection')
   ::
       [%create-collection ~]
-    (return-update 'created-collection')
+    (return-update 'created collection')
+  ::
+      [%add-document ~]
+    (return-update 'added document')
+  ::
+      [%reset ~]
+    (return-update 'resetting')
+  ::
+      [%query ~]
+    (return-update 'querying')
+  ::
+      [%create-embeddings ~]
+    !! :: TODO write created embeddings to file
   ==
   ++  return-update
     |=  print=@t
@@ -85,35 +100,63 @@
     ?>  =(our.bowl src.bowl)
     ~&  >  "poked with act:"
     ~&  >  act
-    ~&  >  "current state:"
-    ~&  >  state
+    =/  coll  -.act
+    ~&  >  coll
     ?-    -.+.act
         %get-collections
       :_  state
       :_  ~
-      (request-card /get-collections %get !>(`"{base}/collections"))
+      %^  request-card  /get-collections  %get
+      !>(`"{base}/collections")
     ::
         %get-collection
       :_  state
       :_  ~
-      (request-card /get-collection %get !>(`"{base}/collection/{(trip +.+.act)}"))
+      %^  request-card  /get-collection  %post
+      !>(`[(crip "{base}/collections/{(trip coll)}/get") +.+.act])
     ::
         %create
       :_  state
       :_  ~
-      (request-card /create-collection %post !>(`[(crip "{base}/collections") +.+.act]))
+      %^  request-card  /create-collection  %post
+      !>(`[(crip "{base}/collections") +.+.act])
     ::
-        %delete
+        %delete :: TODO requires /ted/delete.hoon
+      :: :_  state
+      :: :_  ~
+      :: %^  request-card  /delete-collection  %delete
+      :: !>(`"{base}/collections/{(trip +.+.act)}")
       `state
     ::
         %add-document
-      `state
+      :_  state
+      :_  ~
+      %^  request-card  /add-document  %post
+      !>(`[(crip "{base}/collections/{(trip coll)}/add") +.+.act])
     ::
         %query
-      `state
+      :_  state
+      :_  ~
+      %^  request-card  /query  %post
+      !>(`[(crip "{base}/collections/{(trip coll)}/query") +.+.act])
     ::
         %reset
-      `state
+      :_  state
+      :_  ~
+      %^  request-card  /reset  %post
+      !>(`[(crip "{base}/reset") +.+.act])
+    ::
+        %create-embeddings
+      ?~  api-key.state  
+        !!
+      !! :: TODO needs headers added to /ted/post.hoon
+      :: /=  hedders  :~  (crip "Authorization: Bearer {(crip api-key.state)}")
+      ::                  'Content-Type: application/json'
+      ::              ==
+      :: :_  state
+      :: :_  ~
+      :: %^  request-card  /create-embeddings  %post
+      :: !>(`['http://api.openai.com/v1/embeddings' hedders +.+.act])
     ::
         %save-api-key
       =/  key  key.+.+.act
