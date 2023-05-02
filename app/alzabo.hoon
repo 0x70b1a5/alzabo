@@ -113,19 +113,19 @@
       :_  state
       :_  ~
       %^  request-card  /get-collection  %post
-      !>(`[(crip "{base}/collections/{(trip coll)}/get") +.+.act])
+      !>(`[(crip "{base}/collections/{(trip coll)}/get") ~ +.+.act])
     ::
         %create
       :_  state
       :_  ~
       %^  request-card  /create-collection  %post
-      !>(`[(crip "{base}/collections") +.+.act])
+      !>(`[(crip "{base}/collections") ~ +.+.act])
     ::
         %update
       :_  state
       :_  ~
       %^  request-card  /update-collection  %post
-      !>(`[(crip "{base}/collections/{(trip coll)}/update") +.+.act])
+      !>(`[(crip "{base}/collections/{(trip coll)}/update") ~ +.+.act])
     ::
         %delete 
       :_  state
@@ -137,31 +137,30 @@
       :_  state
       :_  ~
       %^  request-card  /add-document  %post
-      !>(`[(crip "{base}/collections/{(trip coll)}/add") +.+.act])
+      !>(`[(crip "{base}/collections/{(trip coll)}/add") ~ +.+.act])
     ::
         %query
       :_  state
       :_  ~
       %^  request-card  /query  %post
-      !>(`[(crip "{base}/collections/{(trip coll)}/query") +.+.act])
+      !>(`[(crip "{base}/collections/{(trip coll)}/query") ~ +.+.act])
     ::
         %reset
       :_  state
       :_  ~
       %^  request-card  /reset  %post
-      !>(`[(crip "{base}/reset") +.+.act])
+      !>(`[(crip "{base}/reset") ~ +.+.act])
     ::
         %create-embeddings
       ?~  api-key.state  
         !!
-      !! :: TODO needs headers added to /ted/post.hoon
-      :: /=  hedders  :~  (crip "Authorization: Bearer {(crip api-key.state)}")
-      ::                  'Content-Type: application/json'
-      ::              ==
-      :: :_  state
-      :: :_  ~
-      :: %^  request-card  /create-embeddings  %post
-      :: !>(`['http://api.openai.com/v1/embeddings' hedders +.+.act])
+      /=  hedders  :~  'Authorization: Bearer'^(crip api-key.state)
+                       'Content-Type'^'application/json'
+                   ==
+      :_  state
+      :_  ~
+      %^  request-card  /create-embeddings  %post
+      !>(`['https://api.openai.com/v1/embeddings' hedders +.+.act])
     ::
         %save-api-key
       =/  key  key.+.+.act
