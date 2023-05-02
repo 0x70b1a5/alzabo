@@ -1,9 +1,16 @@
 #!/bin/sh
 export DEV_COOKIE=$(curl -i -X POST localhost:8080/~/login -d 'password=magsub-micsev-bacmug-moldex' | grep set-cookie | awk '{print $2}' | awk -F ';' '{print $1}')
 echo $DEV_COOKIE
+#
+# This script doesn't do much for you because %lick vane isn't ready yet.
+# Just run the below commands in order.
+
+# Assumes base dir is in (urbit/urbit repo from github)/pkg and this script is running from pkg/alzabo
 # cd ..
 # ./symbolic-merge.sh base-dev alzabo
 # ./dev/.run
+
+# Then in ~dev dojo (uncomment and copypaste all of the following lines):
 # |new-desk %alzabo
 # |cp %/mar/mime/hoon /=alzabo=/mar/mime/hoon
 # |cp %/mar/txt-diff/hoon /=alzabo=/mar/txt-diff/hoon

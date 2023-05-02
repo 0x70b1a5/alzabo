@@ -31,5 +31,5 @@ echo $DEV_COOKIE
 curl -v -X PUT -H "Content-Type: application/json" --cookie "$DEV_COOKIE" localhost:8080/~/channel/1 -d '[{ "id": 1, "action": "poke", "ship": "dev", "app": "alzabo", "mark": "alzabo-action", "json": { "collection-name": "", "action": { "get-collections": null } } }]'
 # get coll
 curl -v -X PUT -H "Content-Type: application/json" --cookie "$DEV_COOKIE" localhost:8080/~/channel/1 -d '[{ "id": 1, "action": "poke", "ship": "dev", "app": "alzabo", "mark": "alzabo-action", "json": { "collection-name": "mycollection", "action": { "get-collection": "{}" } } }]'
-# add doc to coll
-curl -v -X PUT -H "Content-Type: application/json" --cookie "$DEV_COOKIE" localhost:8080/~/channel/1 -d '[{ "id": 1, "action": "poke", "ship": "dev", "app": "alzabo", "mark": "alzabo-action", "json": { "collection-name": "mycollection", "action": { "add-document": "{ "embeddings": [[1, 2, 3, 0, 1, 2, 3], [1, 2, 3, 0, 1, 2, 3]], "metadatas": [{ "herp": "derp" }, { "herp": "burp" }], "documents": ["doc1", "doc2"], "ids": ["doc1id", "doc2id"], }" } } }]'
+# add docs to coll
+curl -v -X PUT -H "Content-Type: application/json" --cookie "$DEV_COOKIE" localhost:8080/~/channel/1 -d '[{ "id": 1, "action": "poke", "ship": "dev", "app": "alzabo", "mark": "alzabo-action", "json": { "collection-name": "mycollection", "action": { "add-document": "{ \"embeddings\": [[1], [1]], \"metadatas\": [{ \"herp\": \"derp\" }, { \"herp\": \"burp\" }], \"documents\": [\"doc1\", \"doc2\"], \"ids\": [\"doc1id\", \"doc2id\"] }" } } }]'
