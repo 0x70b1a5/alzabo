@@ -35,16 +35,18 @@
   ++  action
     %-  of
     :~  [%get-collections ul]
-    ::
+      ::
         [%get-collection so]
         [%create so]
-        [%delete so]
+        [%update so]
         [%add-document so]
         [%query so]
-    ::
-        [%create-embeddings so]
         [%save-api-key so]
-    ::
+      ::
+        [%delete so]
+      ::
+        [%create-embeddings so]
+      ::
         [%reset ul]
     ==
   ::

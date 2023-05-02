@@ -121,12 +121,17 @@
       %^  request-card  /create-collection  %post
       !>(`[(crip "{base}/collections") +.+.act])
     ::
-        %delete :: TODO requires /ted/delete.hoon
-      :: :_  state
-      :: :_  ~
-      :: %^  request-card  /delete-collection  %delete
-      :: !>(`"{base}/collections/{(trip +.+.act)}")
-      `state
+        %update
+      :_  state
+      :_  ~
+      %^  request-card  /update-collection  %post
+      !>(`[(crip "{base}/collections/{(trip coll)}/update") +.+.act])
+    ::
+        %delete 
+      :_  state
+      :_  ~
+      %^  request-card  /delete-collection  %delete
+      !>(`"{base}/collections/{(trip +.+.act)}")
     ::
         %add-document
       :_  state
