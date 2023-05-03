@@ -4,6 +4,7 @@
   $@  ~
   $%  [%error ~]
       [%api-key-saved ~]
+      [%update content=@t]
   ==
 +$  action
   $:  collection-name=@t

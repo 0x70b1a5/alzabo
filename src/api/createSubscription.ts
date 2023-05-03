@@ -11,7 +11,7 @@ export function createSubscription(app: string, path: string, e: (data: any) => 
       throw new Error(`subscription %${app}${path} quit`, e);
     }
   };
-  console.log(`Subscribed: %${app}${path}`)
+  // console.log(`Subscribed: %${app}${path}`)
   // TODO: err, quit handling (resubscribe?)
   return request;           
 }

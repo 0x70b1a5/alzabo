@@ -30,7 +30,7 @@
   =/  args  !<((unit arg-mold) args-vase)
   ?~  args
     ~&  >>>  "Usage:"
-    ~&  >>>  "-alzabo!watch-update iterations=(unit @ud)"
+    ~&  >>>  "-alzabo!watch-updates iterations=(unit @ud)"
     (pure:m !>(~))
   =*  iterations    iterations.u.args
   ::

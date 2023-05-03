@@ -3,7 +3,7 @@
     color+0xa4.1154
     image+'https://personal-server.fra1.digitaloceanspaces.com/sillus-mallus/alzabo512.png'
     base+'alzabo'
-    glob-ames+[~zod 0v0]
+    glob-http+['https://personal-server.fra1.digitaloceanspaces.com/glob-0v1.8lr5d.vp6fb.otf2q.dkqrj.f4n0v.glob' 0v1.8lr5d.vp6fb.otf2q.dkqrj.f4n0v]
     version+[0 0 1]
     website+'https://github.com/uqbar-core/alzabo'
     license+'MIT'

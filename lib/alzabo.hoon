@@ -12,6 +12,7 @@
   ++  update
     |=  =update:alz
     ^-  json
+    ~&  >>>  update
     ?~  update  ~
     %-  pairs
     ?-    -.update
@@ -20,6 +21,9 @@
     ::
         %api-key-saved
       [%api-key-saved ~]~
+    ::
+        %update
+      [%update s++.update]~
     ==
   --
 ++  dejs

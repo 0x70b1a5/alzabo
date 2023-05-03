@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/@urbit/http-api"></script>
+    <script src="/session.js"></script>
+  </head>
+  <body>
+    <input id="msg" type="text" placeholder="Message for ship" />
+    <button id="submit" type="button" onClick="doPoke()" >Submit</button>
+    <p id="err"></p>
+  </body>
+  <script>
+    document.getElementById("msg")
+      .addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+          document.getElementById("submit").click();
+        }
+      })
+    const api = new UrbitHttpApi.Urbit("");
+    api.ship = window.ship;
+    function doPoke() {
+      const msg = document.getElementById("msg").value;
+      api.poke({
+        app: "hood",
+        mark: "helm-hi",
+        json: msg,
+        onSuccess: success,
+        onError: error
+      });
+    }
+    function success() {
+      document.getElementById("msg").value = "";
+      document.getElementById("err").innerHTML = "";
+    }
+    function error() {
+      document.getElementById("msg").value = "";
+      document.getElementById("err").innerHTML = "Poke failed!";
+    }
+  </script>
+</html>

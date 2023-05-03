@@ -18,8 +18,9 @@ function App() {
   const [newCollectionName, setNewCollectionName] = useState('')
 
   useEffect(() => {
-    init()
-    getCollections()
+    if (!initted) init()
+    setInitted(true)
+    // getCollections()
   }, [])
 
   useEffect(() => {
@@ -53,7 +54,7 @@ function App() {
 
   const onSaveApiKey = async () => {
     saveApiKey(newApiKey)
-    if (!await api.checkApiKey()) return
+    if (!await api.scry({ app: 'alzabo', path: '/has-api-key' })) return
     setNewApiKey('')
     setHasApiKey(true)
     setEditApiKey(false)
@@ -104,7 +105,7 @@ function App() {
         </Col>}
       </Col>
       <LoadingOverlay />
-      <button className={classNames(btn, 'fixed p-2 rounded left-4 bottom-4')} onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
+      <button className={classNames(btn, 'fixed p-2 rounded left-4 bottom-4')} onClick={() => { setInitted(false); localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
     </Col>
   )
 }

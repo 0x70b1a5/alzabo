@@ -21,3 +21,7 @@ echo $DEV_COOKIE
 # |cp /=garden=/lib/docket/hoon /=alzabo=/lib/docket/hoon
 # |mount %alzabo
 
+# ./copy-in.sh
+
+# |commit %alzabo
+# |install our %alzabo

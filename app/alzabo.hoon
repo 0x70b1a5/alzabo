@@ -86,7 +86,7 @@
     ~&  >  print
     ~&  >  result
     :: just send the json as a noun
-    :_  ~  [%give %fact ~[/update] %json !>(s+result)]
+    :_  ~  [%give %fact ~[/update] %alzabo-update !>(update+result)]
   --
 ++  on-peek
   |=  p=path
