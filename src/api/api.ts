@@ -8,15 +8,18 @@ export const upi = new Urbit('')
 upi.ship = 'dev'
 
 export const api = {
-  async so() {
-    console.log('subbing once')
-    await upi.subscribeOnce('alzabo', 'update')
-    console.log('subbed')
+  async checkApiKey() {
+    return await upi.scry({ app: 'alzabo', path: '/has-api-key' })
+  },
+  async saveApiKey(key: string) {
+    await upi.poke({ 
+      app: 'alzabo', 
+      mark: 'alzabo-action', 
+      json: { 'collection-name': '', action: { 'save-api-key': key } } })
   },
   async createEmbeddings(
     text: string,
   ): Promise<any> {
-    await this.so()
     await upi.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
@@ -25,41 +28,36 @@ export const api = {
   async createCollection(
     collection: string,
   ): Promise<any> {
-    await this.so()
     await upi.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
-      json: { 'collection-name': collection, action: { 'create-collection': null } } })
+      json: { 'collection-name': collection, action: { 'create': `{ "name": "${collection}" }` } } })
   },
   async addDocumentToCollection(
     collection: string,
     doc: SingleDocument,
   ): Promise<any> {
-    await this.so()
     await upi.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
-      json: { 'collection-name': collection, action: { 'add-document': doc } } })
+      json: { 'collection-name': collection, action: { 'add-document': JSON.stringify(doc) } } })
   },
   async queryCollection(
     collection: string,
     query: string,
   ): Promise<any> {
-    await this.so()
     await upi.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
       json: { 'collection-name': collection, action: { query } } })
   },
   async getCollections(): Promise<any> {
-    await this.so()
     await upi.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
       json: { 'collection-name': '', action: { 'get-collections': null } } })
   },
   async getCollection(name: string): Promise<any> {
-    await this.so()
     await upi.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 

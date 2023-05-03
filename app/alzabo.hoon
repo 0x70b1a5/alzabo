@@ -50,7 +50,7 @@
       [%get-collection ~]
     (return-update 'got collection')
   ::
-      [%create-collection ~]
+      [%create ~]
     (return-update 'created collection')
   ::
       [%add-document ~]
@@ -80,9 +80,17 @@
     ~&  >  result
     :: just send the json as a noun
     :_  this
-    :_  ~  [%give %fact ~[/update] [%json !>(s+result)]]
+    :_  ~  [%give %fact ~[/update] %json !>(s+result)]
   --
-++  on-peek   on-peek:def
+++  on-peek
+  |=  p=path
+  ^-  (unit (unit cage))
+  ~&  >>  'got scried'
+  ~&  >>  p
+  ?+    +.p  (on-peek:def p)
+      [%has-api-key ~]
+    ``json+!>(b+?!(=(~ `@`api-key.state)))
+  ==
 ::
 ++  on-poke
   |=  [m=mark v=vase]
@@ -118,7 +126,7 @@
         %create
       :_  state
       :_  ~
-      %^  request-card  /create-collection  %post
+      %^  request-card  /create  %post
       !>(`[(crip "{base}/collections") ~ +.+.act])
     ::
         %update
@@ -154,7 +162,7 @@
         %create-embeddings
       ?~  api-key.state  
         !!
-      /=  hedders  :~  'Authorization: Bearer'^(crip api-key.state)
+      =/  hedders  :~  'Authorization: Bearer'^api-key.state
                        'Content-Type'^'application/json'
                    ==
       :_  state

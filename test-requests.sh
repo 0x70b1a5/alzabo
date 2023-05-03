@@ -27,6 +27,8 @@
 export DEV_COOKIE=$(curl -i -X POST localhost:8080/~/login -d 'password=magsub-micsev-bacmug-moldex' | grep set-cookie | awk '{print $2}' | awk -F ';' '{print $1}')
 echo $DEV_COOKIE
 
+# heartbeat
+curl -v -X PUT -H "Content-Type: application/json" --cookie "$DEV_COOKIE" localhost:8080/~/channel/1 -d '[{ "id": 1, "action": "poke", "ship": "dev", "app": "alzabo", "mark": "alzabo-action", "json": { "collection-name": "", "action": { "heartbeat": null } } }]'
 # list colls
 curl -v -X PUT -H "Content-Type: application/json" --cookie "$DEV_COOKIE" localhost:8080/~/channel/1 -d '[{ "id": 1, "action": "poke", "ship": "dev", "app": "alzabo", "mark": "alzabo-action", "json": { "collection-name": "", "action": { "get-collections": null } } }]'
 # get coll

@@ -5,7 +5,7 @@ import { API_KEY_LOCALSTORAGE_KEY, api, upi } from '../api/api'
 import { handleAlzaboUpdate } from '../api/subscriptions'
 import { createSubscription } from '../api/createSubscription'
 
-export interface AbomiStore {
+export interface AlzaboStore {
   createCollection: (name: string) => Promise<void>
   addDocumentToCollection: (name: string, doc: SingleDocument) => Promise<void>
   queryCollection: (name: string, query: string) => Promise<any>
@@ -13,21 +13,24 @@ export interface AbomiStore {
   init: () => Promise<any>,
   collections: { [name: string]: any }
   loading: string
-  apiKey: string
+  hasApiKey: boolean
+  setHasApiKey: (hasApiKey: boolean) => void
   getCollections: () => Promise<void>
   getCollection: (name: string) => Promise<void>
 }
 
-export const useAbomiStore = create<AbomiStore>((set, get) => ({
+export const useAlzaboStore = create<AlzaboStore>((set, get) => ({
   loading: '',
-  apiKey: '',
+  hasApiKey: false,
   init: async () => {
-    const collex = await api.getCollections()
-    const apiKey = localStorage.getItem(API_KEY_LOCALSTORAGE_KEY)
-    if (apiKey) set ({ apiKey })
+    const hasApiKey = await api.checkApiKey()
+    set ({ hasApiKey })
     await upi.subscribe(createSubscription('alzabo', '/update', handleAlzaboUpdate(get, set), (err) => {
-      console.warn('Subscription to /updates quit.')
+      console.warn('Subscription to /update quit.')
     }))
+  },
+  setHasApiKey: async (hasApiKey: boolean) => {
+    set({ hasApiKey })
   },
   collections: {},
   getCollections: async () => {
@@ -61,8 +64,7 @@ export const useAbomiStore = create<AbomiStore>((set, get) => ({
     debugger
   },
   saveApiKey: async (apiKey: string) => {
-    localStorage.setItem(API_KEY_LOCALSTORAGE_KEY, apiKey)
-    alert('Api key saved.')
-    set({ apiKey })
+    await api.saveApiKey(apiKey)
+    set({ hasApiKey: true })
   }
 }))

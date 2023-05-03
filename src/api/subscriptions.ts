@@ -1,6 +1,9 @@
-import { StoreApi } from "zustand";
-import { AbomiStore } from "../stores/store";
+import { StoreApi } from 'zustand';
+import { AlzaboStore } from '../stores/store';
 
-export const handleAlzaboUpdate = (get: StoreApi<AbomiStore>['getState'], set: StoreApi<AbomiStore>['setState']) => (update: any) => {
-  console.log('[UPDATE] ', update)
+export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: StoreApi<AlzaboStore>['setState']) => {
+  console.log({ state: get() })
+  return (update: any) => {
+    console.log('[UPDATE] ', update)
+  }
 }
