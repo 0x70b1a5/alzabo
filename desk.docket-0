@@ -2,7 +2,7 @@
 :~  title+'Alzabo'
     info+'Customizable AI language model.'
     color+0xa4.1154
-    image+'https://personal-server.fra1.digitaloceanspaces.com/alzabo2.png.png'
+    image+'https://personal-server.fra1.digitaloceanspaces.com/sillus-mallus/alzabo512.png'
     base+'alzabo'
     glob-ames+[~zod 0v0]
     version+[0 0 1]

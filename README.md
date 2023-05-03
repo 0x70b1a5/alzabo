@@ -20,7 +20,9 @@ yarn start
 After making changes:
 
 ```sh
-# NB: if you added files to the top level of the repo that you want in the top level of the urbit ship, you may need to change copy-in.sh
+# NB: if you added files to the top level of the repo 
+#     that you want in the top level of the urbit ship, 
+#     you may need to change copy-in.sh
 ./copy-in.sh 
 # ~dev:dojo> |commit %alzabo
 ```
