@@ -45,21 +45,27 @@
   |^
   ?+  w  (on-arvo:def w sign-arvo)
       [%get-collections ~]
+    :_  this
     (return-update 'got collections')
   ::
       [%get-collection ~]
+    :_  this
     (return-update 'got collection')
   ::
       [%create ~]
+    :_  this
     (return-update 'created collection')
   ::
       [%add-document ~]
+    :_  this
     (return-update 'added document')
   ::
       [%reset ~]
+    :_  this
     (return-update 'resetting')
   ::
       [%query ~]
+    :_  this
     (return-update 'querying')
   ::
       [%create-embeddings ~]
@@ -67,6 +73,7 @@
   ==
   ++  return-update
     |=  print=@t
+    ^-  (list card)
     ?.  ?&  ?=(%khan -.sign-arvo)
             ?=(%arow -.+.sign-arvo)
         ==
@@ -79,7 +86,6 @@
     ~&  >  print
     ~&  >  result
     :: just send the json as a noun
-    :_  this
     :_  ~  [%give %fact ~[/update] %json !>(s+result)]
   --
 ++  on-peek
