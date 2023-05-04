@@ -24,4 +24,4 @@ echo "Concatenated contents of Markdown files into $OUTPUT_FILE"
 #   -d "{
 #     \"input\": \"${DERP}\",
 #     \"model\": \"text-embedding-ada-002\"
-#   }"
+#   }" > output.txt
