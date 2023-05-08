@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 /chroma
+__pycache__
 
 # testing
 /coverage
@@ -27,3 +28,5 @@ yarn-error.log*
 
 # Special Alzabo files
 concatenated-*.md
+embeddings-*.json
+payload.txt

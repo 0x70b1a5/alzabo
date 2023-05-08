@@ -1,12 +1,13 @@
 # ALZABO
 
-_Alzabo is a natural-language developer assistant for the Uqbar software suite._
+Alzabo is a natural-language developer assistant for the Uqbar software suite.
 
 ## Model
-
-    User intent + Uqbar docs -> Recommender => Recommendations
-    User intent + Recommendations -> LLM => Action
-    Action -> Alzabo => a real action in userspace (sign txn, send message, etc)
+```
+User intent + Uqbar docs -> Recommender => Recommendations
+User intent + Recommendations -> Planner => Plan
+Plan -> Alzabo => a real action in userspace (sign txn, send message, etc)
+```
 
 ## Install/setup
 
