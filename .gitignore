@@ -6,6 +6,7 @@
 .pnp.js
 /chroma
 __pycache__
+*.pkl
 
 # testing
 /coverage

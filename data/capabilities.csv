@@ -1,0 +1,22 @@
+app,name,description
+Pongo,Send message to user,Send a direct message to another ship
+Pongo,React to message from user,Add a reaction to a direct message from another ship
+Pongo,Call user,Start a one to one video call with another ship
+Pongo,Create group chat,Create a group chat with one or more other ships. The chat can belong to an organization and it may be open or closed to other users.
+Pongo,Invite user to group chat,Invite a user to an existing group chat
+Pongo,Send message to group chat,Send a message to a group chat. You can send text by default. You can also change your nickname; send tokens; or send a link to an app
+Pongo,React to message in group chat,Add a reaction to a message in a group chat. A reaction can be any text string
+Pongo,Call group chat,Start a video call with all members of group chat
+Ziggurat,Create project with desks,Start a new project from a desk on another ship
+Ziggurat,Delete project,Delete an existing project on your ship
+Ziggurat,Add desk to project,Add a development desk to an existing project
+Ziggurat,Remove desk from project,Remove a development desk from an existing project
+Ziggurat,Publish contract,Publish a smart contract from file to an address on the Uqbar network
+Ziggurat,Publish Gall app,Publish a Gall app to the Urbit network
+Ziggurat,Create file,Create a file on a desk
+Ziggurat,Create file from template,Create a file from an existing template (eg thread; contract)
+Ziggurat,Edit file,Change the contents of an existing file
+Ziggurat,Delete file,Delete a file
+Pokur,Create table,Create a new Pokur table with an unstarted game
+Pokur,Start game,Start a Pokur game at a table with two or more players
+Pokur,Send message,Send a message to a Pokur table with two or more players
