@@ -39,19 +39,15 @@ Uqbar's products are listed below, along with their capabilities and the appropr
     'conversation-metadata': 
       { managed: { 
           members: Set<string>,
-          leaders: Set<string> } } 
-      | 
+          leaders: Set<string> } } |
       { org: {
           members: Set<string>,
           name: string,
-          id: number } } 
-      | 
+          id: number } } |
       { open: {
-          members: Set<string> } } 
-      | 
+          members: Set<string> } } |
       { dm: {
-          members: Set<string> } } 
-      | 
+          members: Set<string> } } |
       { inbox: {
           members: Set<string> } } } }
 ```
@@ -86,32 +82,131 @@ Uqbar's products are listed below, along with their capabilities and the appropr
     'message-kind': 'webrtc-call', 
     content: 'request: wss://websocket-endpoint.com' | 'start' | 'end' } }
 ```
-
 ### Ziggurat
-- Projects
-  - Create project with desks
-  - Delete project
-  - Add desk to project
-  - Remove desk from project
-  - Publish contract
-  - Publish Gall app
-- Desks
-  - Create file
-  - Create file from template (smart contract, thread, agent, mark, type)
-  - Edit file
-  - Delete file
-
+#### Projects
+##### Create project with desks
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'new-project': {
+    'fetch-desk-from-remote-ship': string?,
+    'special-configuration-args': string } }
+```
+##### Delete project
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'delete-project': null }
+```
+##### Add desk to project
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'add-project-desk': {
+    index: number?
+    'fetch-desk-from-remote-ship': string? } }
+```
+##### Remove desk from project
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'delete-project-desk': null }
+```
+##### Publish contract
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'deploy-contract': {
+    who: string?
+    'town-id': string,
+    'contract-jam-path': string } }
+```
+##### Publish Gall app
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'publish-app': {
+    title: string,
+    info: string,
+    color: string,
+    image: string,
+    version: number[3],
+    website: string,
+    license: string } }
+```
+#### Desks
+##### Create file
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'save-file': {
+    file: string,
+    text: string } }
+```
+##### Create file from template (smart contract, thread, agent, mark, type)
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'save-file': {
+    file: string,
+    text: '' } }
+```
+##### Edit file
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'save-file': {
+    file: string,
+    text: string } }
+```
+##### Delete file
+```ts
+{ 'project-name': string,
+  'desk-name': string,
+  'delete-file': {
+    file: string } }
+```
 ### Pokur
-- Tables
-  - Create
-  - Delete
-  - Start game
-- Games
-  - Fold
-  - Call
-  - Raise
-  - All-in
-  - Send message
+#### Tables
+##### Create
+```ts
+{ 'new-table': {
+  id: number,
+  host: string,
+  tokenized: { metadata: string, symbol: string, amount: number, 'bond-id': string }?,
+  'min-players': number,
+  'max-players': number,
+  'game-type': { cash: { 
+    { 'min-buy': number,
+      'max-buy': number,
+      'buy-ins': { [key: string]: number },
+      'chips-per-token': number,
+      'small-blind': number,
+      'big-blind': number,
+      'tokens-in-bond': number } | 
+    { sng: {
+      'starting-stack': number,
+      'round-duration': number,
+      'blinds-schedule': [number, number][],
+      'current-round': number,
+      'round-is-over': boolean,
+      payouts: number[] } } } },
+  public: boolean,
+  'spectators-allowed': boolean,
+  'turn-time-limit': number } }
+```
+##### Start game
+```ts
+{ 'start-game': {
+    id: number } }
+```
+##### Send message
+```ts
+{ 'send-message': {
+    msg: string } }
+```
+
+---
 
 ## Your Task
 - Receive summary of user intent.
