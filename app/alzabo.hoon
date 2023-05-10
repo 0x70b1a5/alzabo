@@ -69,7 +69,7 @@
     (return-update 'querying')
   ::
       [%create-embeddings ~]
-    !! :: TODO write created embeddings to file
+    !!
   ==
   ++  return-update
     |=  print=@t

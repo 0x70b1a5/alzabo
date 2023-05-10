@@ -213,4 +213,6 @@ Uqbar's products are listed below, along with their capabilities and the appropr
 - Read summary carefully. The summary will include 5 recommended Actions, but often you will only need to use 1 or 2 depending on the intent. The Actions are ranked from most to least relevant.
 - Think step by step to construct an Action Plan using the Uqbar Spec to fulfill the user's wishes.
 - Respond with an array of one or more API calls from the above list to complete the intent.
-- If a value an API call depends on the result of a previous API call, mock out the value with data of the correct type.
+  - Respond ONLY with the valid JSON body of the API call. Do not include English text.
+  - If a value an API call depends on the result of a previous API call, mock out the value with data of the correct type.
+  - DO NOT include comments, because they are not valid JSON.

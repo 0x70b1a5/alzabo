@@ -2241,10 +2241,10 @@
     "@typescript-eslint/types" "5.59.1"
     eslint-visitor-keys "^3.3.0"
 
-"@urbit/http-api@^2.4.4-debug":
-  version "2.4.4-debug"
-  resolved "https://registry.yarnpkg.com/@urbit/http-api/-/http-api-2.4.4-debug.tgz#c982e93d9574e9dc679d867a59c174bf41b3970a"
-  integrity sha512-0LyIHx7a36dxdFA4czuC5VD8ejKAkVgGQtO+k4naeRGjrHteUTbUpLnxpDfwQ26fBKYTE+34Ym7FyR/5CuNuSg==
+"@urbit/http-api@^3.0.0":
+  version "2.4.5-debug"
+  resolved "https://registry.yarnpkg.com/@urbit/http-api/-/http-api-2.4.5-debug.tgz#47b213966a3f84614e49cc03a29a5fae6f263c4a"
+  integrity sha512-kMzQwNlrObEz4tEg90nlPRW69Tf+9rD3iIK/JgvsG3423x9oa4rFXobnFKBphXR/5bqd5vR41RoMFN7mqEfDgQ==
   dependencies:
     "@babel/runtime" "^7.12.5"
     browser-or-node "^1.3.0"

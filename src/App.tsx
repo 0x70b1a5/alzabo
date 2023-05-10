@@ -5,7 +5,7 @@ import { useAlzaboStore } from './stores/store'
 import classNames from 'classnames'
 import { LoadingOverlay } from './components/LoadingOverlay'
 import { Col, Row } from './components/RowCol'
-import { api } from './api/api'
+import api from './api/index'
 
 function App() {
   const { init, saveApiKey, hasApiKey, setHasApiKey, collections, addDocumentToCollection, queryCollection, getCollection, createCollection, getCollections } = useAlzaboStore()
