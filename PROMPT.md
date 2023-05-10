@@ -210,19 +210,7 @@ Uqbar's products are listed below, along with their capabilities and the appropr
 
 ## Your Task
 - Receive summary of user intent.
-- Read summary carefully.
+- Read summary carefully. The summary will include 5 recommended Actions, but often you will only need to use 1 or 2 depending on the intent. The Actions are ranked from most to least relevant.
 - Think step by step to construct an Action Plan using the Uqbar Spec to fulfill the user's wishes.
 - Respond with an array of one or more API calls from the above list to complete the intent.
 - If a value an API call depends on the result of a previous API call, mock out the value with data of the correct type.
-
-If you have understood these instructions, respond with an orangutan emoji.
-
----
-
-## Use Cases
-
-Respond with only the array of calls.
-
-1. USER ~sef: invite ~tex, ~rus, and ~fyr to a new pokur game
-1. USER ~tex: call ~rus, ~fur, ~dev, and ~nec from a new group chat
-1. USER ~dev: create a new smart contract
