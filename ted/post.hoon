@@ -7,6 +7,8 @@
 =/  unit-req  !<((unit [url=cord heds=(list [@t @t]) body=cord]) req)
 ?~  unit-req  !!
 ~&  >>  "POST {(trip url.u.unit-req)}"
+~&  >>  heds.u.unit-req
+~&  >>  body.u.unit-req
 =/  m  (strand ,vase)
 ^-  form:m
 =/  =request:http  [%'POST' url.u.unit-req heds.u.unit-req `(as-octs:mimes:html body.u.unit-req)]

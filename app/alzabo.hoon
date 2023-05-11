@@ -46,33 +46,38 @@
   ?+  w  (on-arvo:def w sign-arvo)
       [%get-collections ~]
     :_  this
-    (return-update 'got collections')
+    (return-update 'get-collections')
   ::
       [%get-collection ~]
     :_  this
-    (return-update 'got collection')
+    (return-update 'get-collection')
   ::
       [%create ~]
     :_  this
-    (return-update 'created collection')
+    (return-update 'create-collection')
   ::
       [%add-document ~]
     :_  this
-    (return-update 'added document')
+    (return-update 'add-document')
+  ::
+      [%upsert-document ~]
+    :_  this
+    (return-update 'upsert-document')
   ::
       [%reset ~]
     :_  this
-    (return-update 'resetting')
+    (return-update 'reset')
   ::
       [%query ~]
     :_  this
-    (return-update 'querying')
+    (return-update 'query')
   ::
       [%create-embeddings ~]
-    !!
+    :_  this
+    (return-update 'create-embeddings')
   ==
   ++  return-update
-    |=  print=@t
+    |=  update-type=@t
     ^-  (list card)
     ?.  ?&  ?=(%khan -.sign-arvo)
             ?=(%arow -.+.sign-arvo)
@@ -83,10 +88,12 @@
       ~&  >  +.p.+.sign-arvo
       !!
     =+  !<(result=cord q.p.p.+.sign-arvo)
-    ~&  >  print
+    ~&  >  update-type
     ~&  >  result
+    =/  final  
+      (crip "\{ \"type\": \"{(trip update-type)}\", \"update\": {(trip result)} }")
     :: just send the json as a noun
-    :_  ~  [%give %fact ~[/update] %alzabo-update !>(update+result)]
+    :_  ~  [%give %fact ~[/update] %alzabo-update !>(update+final)]
   --
 ++  on-peek
   |=  p=path
@@ -153,6 +160,12 @@
       %^  request-card  /add-document  %post
       !>(`[(crip "{base}/collections/{(trip coll)}/add") ~ +.+.act])
     ::
+        %upsert-document
+      :_  state
+      :_  ~
+      %^  request-card  /upsert-document  %post
+      !>(`[(crip "{base}/collections/{(trip coll)}/upsert") ~ +.+.act])
+    ::
         %query
       :_  state
       :_  ~
@@ -163,18 +176,22 @@
       :_  state
       :_  ~
       %^  request-card  /reset  %post
-      !>(`[(crip "{base}/reset") ~ +.+.act])
+      !>(`[(crip "{base}/reset") ~ ''])
     ::
         %create-embeddings
       ?~  api-key.state  
         !!
-      =/  hedders  :~  'Authorization: Bearer'^api-key.state
+      =/  hedders  :~  'Authorization'^(crip "Bearer {(trip api-key.state)}")
                        'Content-Type'^'application/json'
                    ==
+      =/  body  
+        (crip "\{ \"input\": \"{(trip +.+.act)}\", \"model\": \"text-embedding-ada-002\" }")
+      ~&  >>>  hedders
+      ~&  >>>  body
       :_  state
       :_  ~
       %^  request-card  /create-embeddings  %post
-      !>(`['https://api.openai.com/v1/embeddings' hedders +.+.act])
+      !>(`['https://api.openai.com/v1/embeddings' hedders body])
     ::
         %save-api-key
       =/  key  key.+.+.act

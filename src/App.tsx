@@ -8,32 +8,34 @@ import { Col, Row } from './components/RowCol'
 import api from './api/index'
 
 function App() {
-  const { init, saveApiKey, hasApiKey, setHasApiKey, collections, addDocumentToCollection, queryCollection, getCollection, createCollection, getCollections } = useAlzaboStore()
+  const { init, saveApiKey, hasApiKey, setHasApiKey, newEmbedding, setNewEmbedding, createEmbeddings, setSelectedDocument, collections, selectedCollectionId, setSelectedCollectionId, addDocumentToCollection, queryCollection, getCollection, createCollection, getCollections } = useAlzaboStore()
   const [initted, setInitted] = useState(false)
   const [editApiKey, setEditApiKey] = useState(false)
   const [newDocContent, setNewDocContent] = useState('')
   const [newDocName, setNewDocName] = useState('')
-  const [selectedCollection, setSelectedCollection] = useState('')
   const [newApiKey, setNewApiKey] = useState('')
+  const [query, setQuery] = useState('')
   const [newCollectionName, setNewCollectionName] = useState('')
 
   useEffect(() => {
     if (!initted) init()
     setInitted(true)
-    // getCollections()
+    getCollections()
   }, [])
 
   useEffect(() => {
-    if (selectedCollection) {
-      getCollection(selectedCollection)
+    if (selectedCollectionId) {
+      getCollection(collections[selectedCollectionId].id)
     }
-  }, [selectedCollection])
+  }, [selectedCollectionId])
 
   const onAddDocToCollection = async () => {
+    if (newEmbedding == null) { return alert('Get an embedding first') }
     try {
-      await addDocumentToCollection(selectedCollection, { id: newDocName, content: newDocContent, metadata: {}, embeddings: [] })
+      await addDocumentToCollection(collections[selectedCollectionId].id, newDocName, newDocContent, newEmbedding, { sample: 'metadata' })
       setNewDocContent('')
       setNewDocName('')
+      setNewEmbedding(null)
       await getCollections()
     } catch (e) {
       debugger
@@ -60,11 +62,21 @@ function App() {
     setEditApiKey(false)
   }
 
-  const sxnCn = 'bg-gray-200 dark:bg-gray-700 rounded-xl shadow border p-8 m-10'
-  const btn = 'hover:bg-cyan-100 hover:text-black px-2 py-1 bg-black-500 dark:bg-gray-500 rounded'
+  const onFetchEmbedding = async () => {
+    await createEmbeddings(newDocContent)
+  }
+
+  const onQuery = async () => {
+    await queryCollection(selectedCollectionId, JSON.parse(query))
+  }
+
+  const sxnCn = 'bg-gray-700 rounded-xl shadow border p-8 m-10'
+  const btn = 'px-2 py-1 bg-gray-500 rounded hover:bg-cyan-100 hover:text-black disabled:pointer-events-none disabled:opacity-75 disabled:cursor-not-allowed'
+  const ipt = 'px-2 bg-gray-800 rounded'
+  const coll = collections?.[selectedCollectionId]
 
   return (
-    <Col className='w-screen h-screen dark bg-white text-slate-900 dark:text-white dark:bg-slate-800'>
+    <Col className='w-screen h-screen text-white bg-slate-800 overflow-y-auto pb-8'>
       <Col className='container mx-auto'>
         <header className='flex flex-row items-center p-8'>
           <img src='/alzabo64.png' />
@@ -74,38 +86,59 @@ function App() {
           <h2 className='mb-1'>Settings</h2>
           <Row>
             {(editApiKey || !hasApiKey) ? <Row>
-              <input className='px-2 dark:bg-gray-800' placeholder='api key' value={newApiKey} onChange={(e) => setNewApiKey(e.currentTarget.value)} />
+              <input className={classNames(ipt)} placeholder='api key' value={newApiKey} onChange={(e) => setNewApiKey(e.currentTarget.value)} />
               <button className={classNames(btn, { 'cursor-not-allowed': Boolean(!newApiKey) })} disabled={!Boolean(newApiKey)} type='button' onClick={onSaveApiKey}>save</button>
             </Row> 
             : <button type='button' className={btn} onClick={() => setEditApiKey(true)}>edit API key</button>}
           </Row>
         </Col>
-        {collections.length > 0 && <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='mb-1'>Collections</h2>
-          <p>Select a collection to add documents to:</p>
-          <Row className='ml-5'>
-            {Object.keys(collections).map(c => <Row className={classNames('p-2 mr-5 bg-lime-100 cursor-pointer rounded collection hover:bg-lime-500', { 'text-white': c === selectedCollection,  'bg-lime-900': c === selectedCollection })} key={c} 
-            onClick={() => setSelectedCollection(c)}>
-              <h3>{c}</h3>
-            </Row>)}
-          </Row>
-        </Col>}
         <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='mb-1'>Add collection</h2>
-          <Row>
-            <input className='px-2 dark:bg-gray-800' placeholder='name' value={newCollectionName} onChange={(e) => setNewCollectionName(e.currentTarget.value)} />
-            <button className={btn} type='button' onClick={onCreateCollection}>add</button>
+          <h2 className='mb-1'>Collections</h2>
+          {Object.keys(collections || {})?.length > 0 && <p>Select a collection:</p>}
+          <Row className='flex-wrap ml-5'>
+            {Object.keys(collections).map(c => <Row 
+              className={classNames('p-2 mr-5 text-black bg-cyan-100 cursor-pointer rounded collection hover:bg-cyan-200 hover:opacity-75', 
+                { 'text-white opacity-100 bg-cyan-500': c === selectedCollectionId, 'opacity-50': c !== selectedCollectionId })} 
+              key={c} 
+              onClick={() => setSelectedCollectionId(c)}>
+                {collections[c].name}
+            </Row>)}
+            <Row className='my-1'>
+              <input className={classNames(ipt)} placeholder='name' value={newCollectionName} onChange={(e) => setNewCollectionName(e.currentTarget.value)} />
+              <button className={btn} type='button' onClick={onCreateCollection}>add</button>
+            </Row>
           </Row>
         </Col>
-        {(selectedCollection && hasApiKey) && <Col className={classNames('my-1', sxnCn)} >
-          <h2 className='mb-1'>Add doc to {selectedCollection}</h2>
-          <input className='px-2 dark:bg-gray-800' placeholder='name' value={newDocName} onChange={(e) => setNewDocName(e.currentTarget.value)} />
-          <textarea placeholder='content' value={newDocContent} onChange={(e) => setNewDocContent(e.currentTarget.value)} />
-          <button className={btn} type='button' onClick={onAddDocToCollection}>add</button>
+        {selectedCollectionId && <Col className={classNames('my-1', sxnCn)}>
+          <h2 className='mb-1'>Query collection for nearest neighbors</h2>
+          <Row>
+            <textarea className={ipt} value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder='query'/>
+            <button className={classNames(btn)} type='button' onClick={onQuery}>Query</button>
+          </Row>
+        </Col>}
+        {(selectedCollectionId && hasApiKey) && <Col className={classNames('my-1', sxnCn)}>
+          <h2 className='text-xl mb-1 font-bold font-mono'>{coll.name}</h2>
+          <h3 className='text-lg'>documents</h3>
+          {(coll.documents || []).map((doc, idx) => <Col key={idx} className='bg-gray-600 border rounded px-2 py-1 m-1 document'>
+            <h4 className='ui-monospace text-md mb-1 font-bold font-mono'>{coll.ids[idx]}</h4>
+            <span>embeddings: Array({coll.embeddings?.[idx]?.length})</span>
+            <span>metadata: {JSON.stringify(coll.metadatas[idx])}</span>
+            <span className='mb-1'>content:</span>
+            <textarea disabled rows={3} className={classNames(ipt)} value={doc} />
+          </Col>)}
+          <h2 className='mt-4 mb-2'>Add document</h2>
+          <label>ID/name</label>
+          <input className={classNames(ipt, 'mb-1')} placeholder='name' value={newDocName} onChange={(e) => setNewDocName(e.currentTarget.value)} />
+          <label>Content</label>
+          <textarea className={classNames(ipt, 'mb-1 font-mono')} placeholder='content' value={newDocContent} onChange={(e) => setNewDocContent(e.currentTarget.value)} />
+          <label>Embedding</label>
+          {newEmbedding && <textarea disabled className={classNames(ipt, 'mb-1 font-mono')} placeholder='embedding' value={JSON.stringify(newEmbedding)} />}
+          {!newEmbedding && <button disabled={!newDocContent} className={classNames(btn)} onClick={onFetchEmbedding}>Fetch embedding ($)</button>}
+          {newEmbedding && newDocContent && newDocName && <button disabled={!newEmbedding} className={classNames(btn)} type='button' onClick={onAddDocToCollection}>add</button>}
         </Col>}
       </Col>
       <LoadingOverlay />
-      <button className={classNames(btn, 'fixed p-2 rounded left-4 bottom-4')} onClick={() => { setInitted(false); localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
+      <button className={classNames(btn, 'fixed left-4 bottom-4')} onClick={() => { setInitted(false); localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
     </Col>
   )
 }

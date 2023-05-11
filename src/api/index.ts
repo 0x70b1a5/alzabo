@@ -7,6 +7,6 @@ const api = new Urbit('', '', 'alzabo')
 api.ship = window.ship
 // @ts-ignore window typings
 window.api = api
-api.verbose = true
+// api.verbose = true
 
 export default api

@@ -15,6 +15,7 @@
         [%update options=@t]
         [%delete options=@t]
         [%add-document options=@t]:: id=@tas embeddings=@t metadata=(map @tas @t) content=@t]
+        [%upsert-document options=@t]:: id=@tas embeddings=@t metadata=(map @tas @t) content=@t]
         [%query options=@t]:: embeddings=@t n-results=@ud where=(map @tas @t)]
         [%reset ~]
         ::

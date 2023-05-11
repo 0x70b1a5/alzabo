@@ -12,7 +12,6 @@
   ++  update
     |=  =update:alz
     ^-  json
-    ~&  >>>  update
     ?~  update  ~
     %-  pairs
     ?-    -.update
@@ -39,19 +38,20 @@
   ++  action
     %-  of
     :~  [%get-collections ul]
-      ::
         [%get-collection so]
+      ::
         [%create so]
         [%update so]
         [%add-document so]
+        [%upsert-document so]
+      ::
         [%query so]
-        [%save-api-key so]
       ::
         [%delete so]
-      ::
-        [%create-embeddings so]
-      ::
         [%reset ul]
+      ::
+        [%save-api-key so]
+        [%create-embeddings so]
     ==
   ::
   :: ++  add-document

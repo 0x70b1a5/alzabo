@@ -8,7 +8,7 @@ export function createSubscription(app: string, path: string, e: (data: any) => 
     err: () => console.warn('SUBSCRIPTION ERROR'),
     quit: (e: any) => {
       quit(e)
-      throw new Error(`subscription %${app}${path} quit`, e);
+      throw new Error(`subscription %${app}${path} quit: ${e}`);
     }
   };
   // console.log(`Subscribed: %${app}${path}`)
