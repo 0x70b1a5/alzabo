@@ -6,22 +6,29 @@ import classNames from 'classnames'
 import { LoadingOverlay } from './components/LoadingOverlay'
 import { Col, Row } from './components/RowCol'
 import api from './api/index'
+import { ASK_STAGES } from './constants/stages'
 
 function App() {
-  const { init, saveApiKey, hasApiKey, setHasApiKey, newEmbedding, setNewEmbedding, createEmbeddings, setSelectedDocument, collections, selectedCollectionId, setSelectedCollectionId, addDocumentToCollection, queryCollection, getCollection, createCollection, getCollections } = useAlzaboStore()
+  const { activeTab, askStage, setActiveTab, ask, setAsk, llmAnswer, addDocumentToCollection, collections, createCollection, createEmbeddings, getCollections, getCollection, hasApiKey, init, loading, model, newEmbedding, queryCollection, queryResults, saveApiKey, selectedCollectionId, setSelectedCollectionId, setSelectedDocument, setAskStage, setHasApiKey, setLoading, setNewEmbedding, setQueryResults, tabs, updateDocument } = useAlzaboStore();
   const [initted, setInitted] = useState(false)
   const [editApiKey, setEditApiKey] = useState(false)
   const [newDocContent, setNewDocContent] = useState('')
   const [newDocName, setNewDocName] = useState('')
   const [newApiKey, setNewApiKey] = useState('')
   const [query, setQuery] = useState('')
+  const [nResults,setNResults] = useState('5')
   const [newCollectionName, setNewCollectionName] = useState('')
 
   useEffect(() => {
     if (!initted) init()
     setInitted(true)
+
     getCollections()
-  }, [])
+    if (selectedCollectionId) {
+      getCollection(selectedCollectionId)
+    }
+
+  }, [activeTab])
 
   useEffect(() => {
     if (selectedCollectionId) {
@@ -32,7 +39,8 @@ function App() {
   const onAddDocToCollection = async () => {
     if (newEmbedding == null) { return alert('Get an embedding first') }
     try {
-      await addDocumentToCollection(collections[selectedCollectionId].id, newDocName, newDocContent, newEmbedding, { sample: 'metadata' })
+      await updateDocument(newDocName, newDocContent, newEmbedding, { sample: 'metadata' })
+      // await addDocumentToCollection(collections[selectedCollectionId].id, newDocName, newDocContent, newEmbedding, { sample: 'metadata' })
       setNewDocContent('')
       setNewDocName('')
       setNewEmbedding(null)
@@ -67,7 +75,18 @@ function App() {
   }
 
   const onQuery = async () => {
-    await queryCollection(selectedCollectionId, JSON.parse(query))
+    await queryCollection(selectedCollectionId, JSON.parse(query), nResults)
+  }
+
+  const onAsk = async () => {
+    try { 
+      setLoading('Fetching embeddings for your ask...')
+      setAskStage('embed')
+      await createEmbeddings(ask)
+    } catch (e) {
+      alert('Error occurred while fetching embeddings: ' + JSON.stringify(e))
+      setLoading('')
+    }
   }
 
   const sxnCn = 'bg-gray-700 rounded-xl shadow border p-8 m-10'
@@ -81,9 +100,32 @@ function App() {
         <header className='flex flex-row items-center p-8'>
           <img src='/alzabo64.png' />
           <h1 className='ml-4 text-4xl'> Alzabo </h1> 
+          <Row className='mx-auto'>
+            {tabs.map(tab => <Row key={tab}
+                className={classNames('tab text-lg px-4 py-2 border-b-2', 
+                  { 'text-cyan-500 border-cyan-500': tab === activeTab, 'border-transparent': tab !== activeTab })}>
+              <button onClick={() => setActiveTab(tab)} className='px-2'>{tab}</button>
+            </Row>)}
+          </Row>
         </header>
-        <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='mb-1'>Settings</h2>
+        {llmAnswer && <Col className={classNames('my-1', sxnCn)}>
+          <label>Alzabo:</label>
+          <textarea readOnly value={llmAnswer} rows={llmAnswer.split('\n').length} className={ipt} />
+          <hr className='my-4' />
+          <button className={classNames(btn, 'ml-auto')}>Execute plan</button>
+        </Col>}
+        {activeTab === 'build' && <Col className={classNames('my-1', sxnCn)}>
+          <h2 className='mb-1 text-lg font-bold'>Build</h2>
+          <p className='mb-1'>Tell Alzabo what you would like to do.</p>
+          <Row>
+            <textarea autoFocus className={classNames(ipt, 'grow self-stretch px-4 py-2')} value={ask} onChange={(e) => setAsk(e.currentTarget.value)} placeholder='Start a Pokur game and invite ~rus, ~dev, and ~tex.' />
+            <button className={classNames(btn, 'px-4 relative font-mono font-bold text-xl !bg-cyan-600')} onClick={onAsk}>
+              <span>{'>'}</span>
+            </button>
+          </Row>
+        </Col>}
+        {activeTab === 'settings' && <Col className={classNames('my-1', sxnCn)}>
+          <h2 className='mb-1 text-lg font-bold'>Settings</h2>
           <Row>
             {(editApiKey || !hasApiKey) ? <Row>
               <input className={classNames(ipt)} placeholder='api key' value={newApiKey} onChange={(e) => setNewApiKey(e.currentTarget.value)} />
@@ -91,54 +133,77 @@ function App() {
             </Row> 
             : <button type='button' className={btn} onClick={() => setEditApiKey(true)}>edit API key</button>}
           </Row>
-        </Col>
-        <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='mb-1'>Collections</h2>
-          {Object.keys(collections || {})?.length > 0 && <p>Select a collection:</p>}
-          <Row className='flex-wrap ml-5'>
-            {Object.keys(collections).map(c => <Row 
-              className={classNames('p-2 mr-5 text-black bg-cyan-100 cursor-pointer rounded collection hover:bg-cyan-200 hover:opacity-75', 
-                { 'text-white opacity-100 bg-cyan-500': c === selectedCollectionId, 'opacity-50': c !== selectedCollectionId })} 
-              key={c} 
-              onClick={() => setSelectedCollectionId(c)}>
-                {collections[c].name}
-            </Row>)}
-            <Row className='my-1'>
-              <input className={classNames(ipt)} placeholder='name' value={newCollectionName} onChange={(e) => setNewCollectionName(e.currentTarget.value)} />
-              <button className={btn} type='button' onClick={onCreateCollection}>add</button>
+        </Col>}
+        {activeTab === 'embeddings' && <>
+          <Col className={classNames('my-1', sxnCn)}>
+            <h2 className='mb-1 text-lg font-bold'>Collections</h2>
+            {Object.keys(collections || {})?.length > 0 && <p>Select a collection:</p>}
+            <Row className='flex-wrap items-center'>
+              {Object.keys(collections).map(c => <Row 
+                className={classNames('px-2 mr-5 text-black bg-cyan-100 cursor-pointer rounded collection hover:bg-cyan-200 hover:opacity-75', 
+                  { 'text-white opacity-100 bg-cyan-600 font-bold': c === selectedCollectionId, 'opacity-50': c !== selectedCollectionId })} 
+                key={c} 
+                onClick={() => setSelectedCollectionId(c)}>
+                  {collections[c].name}
+              </Row>)}
+              <Row>
+                <input className={classNames(ipt)} placeholder='name' value={newCollectionName} onChange={(e) => setNewCollectionName(e.currentTarget.value)} />
+                <button className={btn} type='button' onClick={onCreateCollection}>add</button>
+              </Row>
             </Row>
-          </Row>
-        </Col>
-        {selectedCollectionId && <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='mb-1'>Query collection for nearest neighbors</h2>
-          <Row>
-            <textarea className={ipt} value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder='query'/>
-            <button className={classNames(btn)} type='button' onClick={onQuery}>Query</button>
-          </Row>
-        </Col>}
-        {(selectedCollectionId && hasApiKey) && <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='text-xl mb-1 font-bold font-mono'>{coll.name}</h2>
-          <h3 className='text-lg'>documents</h3>
-          {(coll.documents || []).map((doc, idx) => <Col key={idx} className='bg-gray-600 border rounded px-2 py-1 m-1 document'>
-            <h4 className='ui-monospace text-md mb-1 font-bold font-mono'>{coll.ids[idx]}</h4>
-            <span>embeddings: Array({coll.embeddings?.[idx]?.length})</span>
-            <span>metadata: {JSON.stringify(coll.metadatas[idx])}</span>
-            <span className='mb-1'>content:</span>
-            <textarea disabled rows={3} className={classNames(ipt)} value={doc} />
-          </Col>)}
-          <h2 className='mt-4 mb-2'>Add document</h2>
-          <label>ID/name</label>
-          <input className={classNames(ipt, 'mb-1')} placeholder='name' value={newDocName} onChange={(e) => setNewDocName(e.currentTarget.value)} />
-          <label>Content</label>
-          <textarea className={classNames(ipt, 'mb-1 font-mono')} placeholder='content' value={newDocContent} onChange={(e) => setNewDocContent(e.currentTarget.value)} />
-          <label>Embedding</label>
-          {newEmbedding && <textarea disabled className={classNames(ipt, 'mb-1 font-mono')} placeholder='embedding' value={JSON.stringify(newEmbedding)} />}
-          {!newEmbedding && <button disabled={!newDocContent} className={classNames(btn)} onClick={onFetchEmbedding}>Fetch embedding ($)</button>}
-          {newEmbedding && newDocContent && newDocName && <button disabled={!newEmbedding} className={classNames(btn)} type='button' onClick={onAddDocToCollection}>add</button>}
-        </Col>}
+          </Col>
+          {selectedCollectionId && <Col className={classNames('my-1', sxnCn)}>
+            <h2 className='mb-1 text-lg font-bold'>Query collection for nearest neighbors</h2>
+            <Row>
+              <Row>
+                <Col>
+                  <label>number of results</label>
+                  <input className={classNames(ipt, 'mr-1')} value={nResults} onChange={(e) => setNResults(e.currentTarget.value)} placeholder='number of results' type='number' />
+                </Col>
+                <Col>
+                  <label>query embeddings</label>
+                  <textarea className={ipt} value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder='query'/>
+                </Col>
+                <button className={classNames(btn)} type='button' onClick={onQuery}>Query</button>
+              </Row>
+            </Row>
+          </Col>}
+          {(selectedCollectionId && hasApiKey) && <Col className={classNames('my-1', sxnCn)}>
+            <Row className='items-center'>
+              <h2 className='rounded bg-cyan-600 px-2 mr-2 text-xl mb-1 font-bold font-mono'>{coll.name} </h2>
+              <span className='text-xs'>{coll.id}</span>
+            </Row>            
+            <h3 className='text-lg'>documents</h3>
+            {(coll.documents || []).map((doc, idx) => <Col key={idx} className='bg-gray-600 border rounded px-2 py-1 m-1 document'>
+              <h4 className='ui-monospace text-md mb-1 font-bold font-mono'>{coll.ids[idx]}</h4>
+              <span>embeddings: Array({coll.embeddings?.[idx]?.length})</span>
+              <span>metadata: {JSON.stringify(coll.metadatas[idx])}</span>
+              <span className='mb-1'>content:</span>
+              <textarea disabled rows={3} className={classNames(ipt)} value={doc} />
+            </Col>)}
+            <h2 className='mt-4 mb-2'>Add document</h2>
+            <label>ID/name</label>
+            <input className={classNames(ipt, 'mb-1')} placeholder='name' value={newDocName} onChange={(e) => setNewDocName(e.currentTarget.value)} />
+            <label>Content</label>
+            <textarea className={classNames(ipt, 'mb-1 font-mono')} placeholder='content' value={newDocContent} onChange={(e) => setNewDocContent(e.currentTarget.value)} />
+            <label>Embedding</label>
+            {newEmbedding && <textarea disabled className={classNames(ipt, 'mb-1 font-mono')} placeholder='embedding' value={JSON.stringify(newEmbedding)} />}
+            {!newEmbedding && <button disabled={!newDocContent} className={classNames(btn)} onClick={onFetchEmbedding}>Fetch embedding ($)</button>}
+            {newEmbedding && newDocContent && newDocName && <button disabled={!newEmbedding} className={classNames(btn)} type='button' onClick={onAddDocToCollection}>add</button>}
+          </Col>}
+        </>}
+        {activeTab === 'chat' && <>
+          <Col className={classNames('my-1', sxnCn)}>
+            <h2 className={classNames('mb-1 text-lg font-bold')}>Chat</h2>
+            <p>Chat directly with {model}.</p>
+          </Col>
+        </>}
       </Col>
       <LoadingOverlay />
-      <button className={classNames(btn, 'fixed left-4 bottom-4')} onClick={() => { setInitted(false); localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
+      <Row className={classNames('fixed left-4 bottom-4')}>
+        <button className={classNames(btn, 'mr-4')} onClick={() => { setInitted(false); localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
+        {ASK_STAGES.map(stage => <button key={stage} className={classNames(btn, stage, 'pointer-events-none ml-1', { 'font-bold !bg-cyan-600': askStage === stage })}>{'> '} {stage}</button>)}
+      </Row>
     </Col>
   )
 }

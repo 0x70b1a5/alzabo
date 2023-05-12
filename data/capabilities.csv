@@ -19,4 +19,4 @@ Ziggurat,Edit file,Change the contents of an existing file
 Ziggurat,Delete file,Delete a file
 Pokur,Create table,Create a new Pokur table with an unstarted game
 Pokur,Start game,Start a Pokur game at a table with two or more players
-Pokur,Send message,Send a message to a Pokur table with two or more players
+Pokur,Send message to table,Send a message to a Pokur table with two or more players

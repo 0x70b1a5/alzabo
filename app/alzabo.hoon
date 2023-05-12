@@ -44,6 +44,9 @@
   ^-  (quip card _this)
   |^
   ?+  w  (on-arvo:def w sign-arvo)
+    ::
+    :: TODO surely we can just handle all of these in one case
+    ::
       [%get-collections ~]
     :_  this
     (return-update 'get-collections')
@@ -52,7 +55,7 @@
     :_  this
     (return-update 'get-collection')
   ::
-      [%create ~]
+      [%create-collection ~]
     :_  this
     (return-update 'create-collection')
   ::
@@ -68,13 +71,17 @@
     :_  this
     (return-update 'reset')
   ::
-      [%query ~]
+      [%query-collection ~]
     :_  this
-    (return-update 'query')
+    (return-update 'query-collection')
   ::
       [%create-embeddings ~]
     :_  this
     (return-update 'create-embeddings')
+  ::
+      [%create-completion ~]
+    :_  this
+    (return-update 'create-completion')
   ==
   ++  return-update
     |=  update-type=@t
@@ -136,19 +143,19 @@
       %^  request-card  /get-collection  %post
       !>(`[(crip "{base}/collections/{(trip coll)}/get") ~ +.+.act])
     ::
-        %create
+        %create-collection
       :_  state
       :_  ~
-      %^  request-card  /create  %post
+      %^  request-card  /create-collection  %post
       !>(`[(crip "{base}/collections") ~ +.+.act])
     ::
-        %update
+        %update-collection
       :_  state
       :_  ~
       %^  request-card  /update-collection  %post
       !>(`[(crip "{base}/collections/{(trip coll)}/update") ~ +.+.act])
     ::
-        %delete 
+        %delete-collection 
       :_  state
       :_  ~
       %^  request-card  /delete-collection  %delete
@@ -166,10 +173,10 @@
       %^  request-card  /upsert-document  %post
       !>(`[(crip "{base}/collections/{(trip coll)}/upsert") ~ +.+.act])
     ::
-        %query
+        %query-collection
       :_  state
       :_  ~
-      %^  request-card  /query  %post
+      %^  request-card  /query-collection  %post
       !>(`[(crip "{base}/collections/{(trip coll)}/query") ~ +.+.act])
     ::
         %reset
@@ -181,17 +188,23 @@
         %create-embeddings
       ?~  api-key.state  
         !!
-      =/  hedders  :~  'Authorization'^(crip "Bearer {(trip api-key.state)}")
-                       'Content-Type'^'application/json'
-                   ==
       =/  body  
         (crip "\{ \"input\": \"{(trip +.+.act)}\", \"model\": \"text-embedding-ada-002\" }")
-      ~&  >>>  hedders
       ~&  >>>  body
       :_  state
       :_  ~
       %^  request-card  /create-embeddings  %post
       !>(`['https://api.openai.com/v1/embeddings' hedders body])
+    ::
+        %create-completion
+      ?~  api-key.state  
+        !!
+      ~&  >>>  +.+.act
+      :: TODO save your chat messages locally
+      :_  state
+      :_  ~
+      %^  request-card  /create-completion  %post
+      !>(`['https://api.openai.com/v1/chat/completions' hedders +.+.act])
     ::
         %save-api-key
       =/  key  key.+.+.act
@@ -200,6 +213,10 @@
       `state(api-key key)
     ==
   ++  base  "http://localhost:8000/api/v1"
+  ++  hedders  
+      :~  'Authorization'^(crip "Bearer {(trip api-key.state)}")
+          'Content-Type'^'application/json'
+      ==
   ++  request-card
     |=  [pax=path method=@tas body=vase]
     [%pass pax %arvo %k %fard %alzabo method %noun body]

@@ -1,3 +1,4 @@
+
 export interface SingleDocument {
   id: string,
   embedding: number[],
@@ -14,4 +15,11 @@ export interface OurCollection {
   metadatas: string[]
   ids: string[]
   dirty?: boolean
+}
+
+type AskStage = 'none' | 'embed' | 'query' | 'consult' | 'approve'
+
+export interface ChatMessage {
+  role: string,
+  content: string,
 }

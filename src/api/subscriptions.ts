@@ -24,7 +24,7 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
       return
     }
 
-    const { collections, getCollection, selectedCollectionId, selectedDocument, updateDocument } = get()
+    const { collections, model, ask, systemMsg, createChatCompletion, getCollection, getCollections, selectedCollectionId, selectedDocument, updateDocument, askStage, queryCollection } = get()
 
     switch (type) {
       case 'get-collections': {
@@ -41,20 +41,62 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
         set({ collections })
         break
       } case 'create-embeddings': {
-        let ourIdx = -1
+        // verify the embedding 
         const newEmbedding = update.data?.[0]?.embedding
         console.log({new_emb: newEmbedding, update, data: update.data, embedding: update.data?.[0]?.embedding})
         if (!(Array.isArray(newEmbedding) && newEmbedding.every(e => !isNaN(e)))) {
+          alert('Something was weird about the embedding we got back.')
+        }
+
+        console.log('legit embeddings', {askStage})
+
+        if (askStage === 'embed') { // we are in the middle of an ask
+          set({ askStage: 'query', loading: 'Assessing Uqbar capabilities...' })
+          const uqId = Object.keys(collections).find(k => collections[k].name === 'uqbar')
+          if (!uqId) {
+            alert('could not find uqbars collection. ensure you have an uqbar collection loaded which is populated with capabilities')
+            set({ askStage: 'none', loading: '' })
+            return
+          }
+          queryCollection(uqId, newEmbedding, '5')
+        } else { // we are adding a doc to a coll
+          set ({ newEmbedding })
+        }
+        break
+      } case 'query-collection': {
+        console.log('querying', {askStage})
+        if (askStage === 'query') { // the N closest api capabilities have just returned
+          if (!(update?.documents?.[0]?.length > 0)) {
+            set ({ askStage: 'none', loading: '', })
+            alert('There was an issue retrieving results from the vector store: ' + JSON.stringify(update))
+            return
+          }
+          set({ askStage: 'consult', loading: `Consulting ${model}...` })
+          createChatCompletion([
+            systemMsg, 
+            { role: 'assistant', 
+              content: `User intent: ${ask}\n\nRecommendations:\n  ${update.documents[0].map((sugg:string) => `- ${sugg}\n`)}` } ])
+        }
+        break
+      } case 'create-completion': {
+        console.log('got completion', update)
+        if (!update?.choices?.[0]?.message?.content) {
+          alert('unexpected response from llm: ' + JSON.stringify(update))
           return
-        } 
-        set ({ newEmbedding })
+        }
+        set({ askStage: 'approve', loading: '', llmAnswer: update.choices[0].message.content })
         break
       } case 'upsert-document': {
-        const coll = collections[selectedCollectionId]
-        const idx = coll.ids.indexOf(selectedDocument)
         if (Boolean(update) === update) {
           // success
+          getCollections()
+          getCollection(selectedCollectionId)
+        } else {
+          alert('Issue upserting document.')
         }
+        break
+      } case 'reset': {
+        alert('Database has been reset. Please reload to see changes.')
         break
       } case 'add-document': {
         if (Boolean(update) === update) {

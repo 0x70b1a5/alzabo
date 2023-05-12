@@ -40,18 +40,19 @@
     :~  [%get-collections ul]
         [%get-collection so]
       ::
-        [%create so]
-        [%update so]
+        [%create-collection so]
+        [%update-collection so]
+        [%query-collection so]
+        [%delete-collection so]
+      ::
         [%add-document so]
         [%upsert-document so]
       ::
-        [%query so]
-      ::
-        [%delete so]
         [%reset ul]
       ::
         [%save-api-key so]
         [%create-embeddings so]
+        [%create-completion so]
     ==
   ::
   :: ++  add-document
