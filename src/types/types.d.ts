@@ -17,8 +17,6 @@ export interface OurCollection {
   dirty?: boolean
 }
 
-type AskStage = 'none' | 'embed' | 'query' | 'consult' | 'approve'
-
 export interface ChatMessage {
   role: string,
   content: string,

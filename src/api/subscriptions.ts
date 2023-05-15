@@ -30,15 +30,15 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
       case 'get-collections': {
         const collections: any = {};
         (update as OurCollection[]).forEach(coll => collections[coll.id] = coll)
-        set({ collections })
+        set({ collections, loading: '' })
         break
       } case 'create-collection': {
         collections[update.id] = update
-        set({ collections })
+        set({ collections, loading: '' })
         break
       } case 'get-collection': {
         collections[selectedCollectionId] = { ...collections[selectedCollectionId], ...update }
-        set({ collections })
+        set({ collections, loading: '' })
         break
       } case 'create-embeddings': {
         // verify the embedding 
@@ -50,12 +50,12 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
 
         console.log('legit embeddings', {askStage})
 
-        if (askStage === 'embed') { // we are in the middle of an ask
-          set({ askStage: 'query', loading: 'Assessing Uqbar capabilities...' })
+        if (askStage === 1) { // we are in the middle of an ask
+          set({ askStage: 2, loading: 'Assessing Uqbar capabilities...' })
           const uqId = Object.keys(collections).find(k => collections[k].name === 'uqbar')
           if (!uqId) {
             alert('could not find uqbars collection. ensure you have an uqbar collection loaded which is populated with capabilities')
-            set({ askStage: 'none', loading: '' })
+            set({ askStage: 0, loading: '' })
             return
           }
           queryCollection(uqId, newEmbedding, '5')
@@ -65,17 +65,17 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
         break
       } case 'query-collection': {
         console.log('querying', {askStage})
-        if (askStage === 'query') { // the N closest api capabilities have just returned
+        if (askStage === 2) { // the N closest api capabilities have just returned
           if (!(update?.documents?.[0]?.length > 0)) {
-            set ({ askStage: 'none', loading: '', })
+            set ({ askStage: 0, loading: '', })
             alert('There was an issue retrieving results from the vector store: ' + JSON.stringify(update))
             return
           }
-          set({ askStage: 'consult', loading: `Consulting ${model}...` })
+          set({ askStage: 3, loading: `Consulting ${model}...` })
           createChatCompletion([
             systemMsg, 
             { role: 'assistant', 
-              content: `User intent: ${ask}\n\nRecommendations:\n  ${update.documents[0].map((sugg:string) => `- ${sugg}\n`)}` } ])
+              content: `User intent:\n- ${ask}\n\nRecommendations:\n${update.documents[0].map((sugg:string) => `- ${sugg}\n`)}\nResponse:\n` } ])
         }
         break
       } case 'create-completion': {
@@ -84,7 +84,7 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
           alert('unexpected response from llm: ' + JSON.stringify(update))
           return
         }
-        set({ askStage: 'approve', loading: '', llmAnswer: update.choices[0].message.content })
+        set({ askStage: 4, loading: '', llmAnswer: update.choices[0].message.content })
         break
       } case 'upsert-document': {
         if (Boolean(update) === update) {
@@ -105,6 +105,7 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
         } else if (update.detail) {
           // failure?
           alert(JSON.stringify(update.detail))
+          set({ loading: '' })
         }
         break
       } default:

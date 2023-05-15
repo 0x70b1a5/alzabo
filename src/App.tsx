@@ -6,7 +6,8 @@ import classNames from 'classnames'
 import { LoadingOverlay } from './components/LoadingOverlay'
 import { Col, Row } from './components/RowCol'
 import api from './api/index'
-import { ASK_STAGES } from './constants/stages'
+import { AskStages } from './constants/stages'
+import { deyamlinate, ensteppen, testEnsteppen } from './utils/yaml'
 
 function App() {
   const { activeTab, askStage, setActiveTab, ask, setAsk, llmAnswer, addDocumentToCollection, collections, createCollection, createEmbeddings, getCollections, getCollection, hasApiKey, init, loading, model, newEmbedding, queryCollection, queryResults, saveApiKey, selectedCollectionId, setSelectedCollectionId, setSelectedDocument, setAskStage, setHasApiKey, setLoading, setNewEmbedding, setQueryResults, tabs, updateDocument } = useAlzaboStore();
@@ -81,7 +82,7 @@ function App() {
   const onAsk = async () => {
     try { 
       setLoading('Fetching embeddings for your ask...')
-      setAskStage('embed')
+      setAskStage(1)
       await createEmbeddings(ask)
     } catch (e) {
       alert('Error occurred while fetching embeddings: ' + JSON.stringify(e))
@@ -93,12 +94,13 @@ function App() {
   const btn = 'px-2 py-1 bg-gray-500 rounded hover:bg-cyan-100 hover:text-black disabled:pointer-events-none disabled:opacity-75 disabled:cursor-not-allowed'
   const ipt = 'px-2 bg-gray-800 rounded'
   const coll = collections?.[selectedCollectionId]
+  testEnsteppen()
 
   return (
     <Col className='w-screen h-screen text-white bg-slate-800 overflow-y-auto pb-8'>
       <Col className='container mx-auto'>
         <header className='flex flex-row items-center p-8'>
-          <img src='/alzabo64.png' />
+          <img src='/alzabo64.png' className='rounded' />
           <h1 className='ml-4 text-4xl'> Alzabo </h1> 
           <Row className='mx-auto'>
             {tabs.map(tab => <Row key={tab}
@@ -109,8 +111,14 @@ function App() {
           </Row>
         </header>
         {llmAnswer && <Col className={classNames('my-1', sxnCn)}>
-          <label>Alzabo:</label>
-          <textarea readOnly value={llmAnswer} rows={llmAnswer.split('\n').length} className={ipt} />
+          <Row className='items-start'>
+            <Col className='items-center'>
+              <img src='/alzabo64.png' className='grayscale rounded' />
+              <label className='my-2 font-mono text-sm'>"Al"</label>
+            </Col>
+            <textarea readOnly value={llmAnswer} rows={llmAnswer.split('\n').length} className={classNames(ipt, 'ml-2 py-2 px-4 font-mono rounded-xl resize-none rounded-tl-none')} />
+            <textarea readOnly value={ensteppen(llmAnswer)} rows={llmAnswer.split('\n').length} className={classNames(ipt, 'ml-2 py-2 px-4 grow font-mono rounded-xl resize-none rounded-tl-none')} />
+          </Row>
           <hr className='my-4' />
           <button className={classNames(btn, 'ml-auto')}>Execute plan</button>
         </Col>}
@@ -122,6 +130,17 @@ function App() {
             <button className={classNames(btn, 'px-4 relative font-mono font-bold text-xl !bg-cyan-600')} onClick={onAsk}>
               <span>{'>'}</span>
             </button>
+          </Row>
+          <Row className={classNames('mt-1 justify-center')}>
+            {AskStages.map((stageName, stageIdx) => <Col key={stageName} className={classNames('items-center text-gray-400 px-0.5 mt-1', { '!text-cyan-700': askStage === stageIdx })}>
+              <Row key={stageIdx} className={classNames('px-4 py-1 bg-gray-500 border', 
+                  { 'border-cyan-200 text-cyan-200': askStage === stageIdx, 
+                    '!bg-gray-700 border-gray-500': askStage < stageIdx,
+                    'rounded-tl-xl rounded-bl-xl': stageIdx === 0,
+                    'rounded-tr-xl rounded-br-xl': stageIdx === AskStages.length - 1 })}>
+                {askStage > stageIdx ? '✔ ' : ''}{stageName}
+              </Row>
+            </Col>)}
           </Row>
         </Col>}
         {activeTab === 'settings' && <Col className={classNames('my-1', sxnCn)}>
@@ -202,7 +221,6 @@ function App() {
       <LoadingOverlay />
       <Row className={classNames('fixed left-4 bottom-4')}>
         <button className={classNames(btn, 'mr-4')} onClick={() => { setInitted(false); localStorage.clear(); sessionStorage.clear(); window.location.reload() }}>Reset UI</button>
-        {ASK_STAGES.map(stage => <button key={stage} className={classNames(btn, stage, 'pointer-events-none ml-1', { 'font-bold !bg-cyan-600': askStage === stage })}>{'> '} {stage}</button>)}
       </Row>
     </Col>
   )

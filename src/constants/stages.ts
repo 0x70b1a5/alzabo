@@ -1,1 +1,1 @@
-export const ASK_STAGES = ['none', 'embed', 'query', 'approve', 'consult']
+export const AskStages = ['start', 'embed query', 'submit query', 'consult LM', 'approve plan']

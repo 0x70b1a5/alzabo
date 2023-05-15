@@ -1,52 +1,53 @@
 import { create } from 'zustand'
 import { Collection } from 'chromadb'
-import { AskStage, ChatMessage, OurCollection, SingleDocument } from  '../types/types'
+import { ChatMessage, OurCollection, SingleDocument } from  '../types/types'
 import api from '../api/index'
 import { handleAlzaboUpdate } from '../api/subscriptions'
 import { createSubscription } from '../api/createSubscription'
 import { SYSTEM_PROMPT } from '../constants/prompt'
 
 export interface AlzaboStore {
-  createCollection: (name: string) => Promise<void>
-  addDocumentToCollection: (collId: string, docId: string, docContent: string, embedding: number[], metadata: any) => Promise<void>
-  queryCollection: (collId: string, query: number[], nResults: string) => Promise<any>
-  saveApiKey: (apiKey: string) => Promise<void>
-  init: () => Promise<any>,
   collections: { [name: string]: OurCollection }
   queryResults: SingleDocument[] | null
   loading: string
   hasApiKey: boolean
   hasSubscribed: boolean
+  chromaInitialized: boolean
+  selectedCollectionId: string
+  selectedDocument: string
+  newEmbedding: number[] | null
+  tabs: string[],
+  askStage: number
+  systemMsg: ChatMessage
+  activeTab: string,
+  chatHistory: ChatMessage[]
+  model: string
+  ask: string
+  models: string[]
+  llmAnswer: string
+  temperature: number
+  createCollection: (name: string) => Promise<void>
+  addDocumentToCollection: (collId: string, docId: string, docContent: string, embedding: number[], metadata: any) => Promise<void>
+  queryCollection: (collId: string, query: number[], nResults: string) => Promise<any>
+  saveApiKey: (apiKey: string) => Promise<void>
+  init: () => Promise<any>,
+  setNewEmbedding: (newEmbedding: number[] | null) => void
   setHasApiKey: (hasApiKey: boolean) => void
   checkApiKey: () => Promise<any>
   getCollections: () => Promise<void>
   getCollection: (name: string) => Promise<void>
   createEmbeddings: (text: string) => Promise<any>
-  selectedCollectionId: string
-  selectedDocument: string
-  newEmbedding: number[] | null
-  setNewEmbedding: (newEmbedding: number[] | null) => void
   setSelectedCollectionId: (id: string) => void
   setSelectedDocument: (id: string) => void
   updateDocument: (id: string, document: string, embeddings: number[], metadata: any) => Promise<any>
   setQueryResults: (r: SingleDocument[] | null) => void
-  tabs: string[],
-  askStage: AskStage
-  systemMsg: ChatMessage
-  setAskStage: (askStage: AskStage) => void
-  activeTab: string,
+  setAskStage: (askStage: number) => void
   setActiveTab: (activeTab: string) => void
   setLoading: (loading: string) => void
-  chatHistory: ChatMessage[]
   setChatHistory: (chatHistory: ChatMessage[]) => void
-  model: string
-  ask: string
-  models: string[]
-  llmAnswer: string
   setModels: (models: string[]) => void
   setModel: (model: string) => void
   setAsk: (model: string) => void
-  temperature: number
   setTemperature: (temperature: number) => void
   createChatCompletion: (messages: ChatMessage[]) => Promise<any>
 }
@@ -61,8 +62,9 @@ export const useAlzaboStore = create<AlzaboStore>((set, get) => ({
   newEmbedding: null,
   hasApiKey: false,
   hasSubscribed: false,
+  chromaInitialized: false,
   activeTab: 'build',
-  askStage: 'none',
+  askStage: 0,
   chatHistory: [],
   temperature: 0.7,
   tabs: ['build', 'embeddings', 'chat', 'settings'],
@@ -78,7 +80,7 @@ export const useAlzaboStore = create<AlzaboStore>((set, get) => ({
   setAsk: (ask: string) => set({ ask }),
   setActiveTab: (activeTab: string) => set({ activeTab }),
   setLoading: (loading: string) => set({ loading }),
-  setAskStage: (askStage: AskStage) => set({ askStage }),
+  setAskStage: (askStage: number) => set({ askStage }),
   checkApiKey: async () => await api.scry({ app: 'alzabo', path: '/has-api-key' }),
   setChatHistory: (chatHistory: ChatMessage[]) => set({ chatHistory }),
   init: async () => {
@@ -100,24 +102,28 @@ export const useAlzaboStore = create<AlzaboStore>((set, get) => ({
     set({ hasApiKey })
   },
   getCollections: async () => {
+    set({ loading: 'Fetching collections...' })
     const result = await api.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
       json: { 'collection-name': '', action: { 'get-collections': null } }, onSuccess })
   },
   getCollection: async (id: string) => {
+    set({ loading: 'Fetching collection...' })
     const result = await api.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
       json: { 'collection-name': id, action: { 'get-collection': '{}' } }, onSuccess })
   },
   createCollection: async(name: string) => {
+    set({ loading: 'Creating collection...' })
     await api.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
       json: { 'collection-name': name, action: { 'create-collection': `{ "name": "${name}" }` } }, onSuccess })
   },
   addDocumentToCollection: async (collId: string, docId: string, docContent: string, embedding: number[], metadata: any) => {
+    set({ loading: 'Adding document to collection...' })
     const result = await api.poke({ 
       app: 'alzabo', 
       mark: 'alzabo-action', 
@@ -176,5 +182,5 @@ export const useAlzaboStore = create<AlzaboStore>((set, get) => ({
   getNearestNeighbors: async(collection: string, embedding: number[], n_results: string, where: any = {}) => {
     const {queryCollection } = get()
     await queryCollection(collection, embedding, n_results)
-  }
+  },
 }))
