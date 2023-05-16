@@ -34,11 +34,11 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
         break
       } case 'create-collection': {
         collections[update.id] = update
-        set({ collections, loading: '' })
+        set({ collections, loading: '', selectedCollectionId: update.id })
         break
       } case 'get-collection': {
         collections[selectedCollectionId] = { ...collections[selectedCollectionId], ...update }
-        set({ collections, loading: '' })
+        set({ collections, loading: '', newEmbedding: undefined })
         break
       } case 'create-embeddings': {
         // verify the embedding 

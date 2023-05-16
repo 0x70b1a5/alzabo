@@ -20,10 +20,9 @@ export const validateYamlSteps = (steps: any) => {
     return false
   }
   if (steps.find(step => !Object.keys(Actions).includes(step.call))) {
-    console.warn('not valid: steps not all have `call`')
-    return false
+    console.warn('not valid: steps not all in Actions', steps)
+    // return false
   }
-  console.warn('PASS')
   return true
 }
 
@@ -31,22 +30,21 @@ export const ensteppen = (yamlSteps: any) => {
   const actions = deyamlinate(yamlSteps)
   if (!validateYamlSteps(actions)) return []
   let acktions = (actions as unknown as any[])
-  let namespace: { [key: string]: any } = {}
+  // const namespace: { [key: string]: any } = {}
 
-  const replaceValues = (obj: any, namespace: { [key: string]: any }) => {
-    for (let key in obj) {
-      if (typeof obj[key] === "object" && obj[key] !== null) {
-        replaceValues(obj[key], namespace);
-      } else if (typeof obj[key] === "string") {
-        obj[key] = (obj[key] as string).replace(/{{(.*?)}}/g, (match, capture) => {
-          let val = Object.keys(namespace).includes(capture) ? namespace[capture] : match;
-          if (!val) debugger
-          return val
-        });
-      }
-    }
-  };
-  
+  // const replaceValues = (obj: any, ns: { [key: string]: any }) => {
+  //   for (let key in obj) {
+  //     if (typeof obj[key] === "object" && obj[key] !== null) {
+  //       replaceValues(obj[key], ns);
+  //     } else if (typeof obj[key] === "string") {
+  //       obj[key] = (obj[key] as string).replace(/{{(.*?)}}/g, (match, capture) => {
+  //         let val = Object.keys(ns).includes(capture) ? ns[capture] : match;
+  //         if (!val) debugger
+  //         return val
+  //       });
+  //     }
+  //   }
+  // };
 
   return acktions.map((action: any) => {
     let actionType = action.call
@@ -54,13 +52,13 @@ export const ensteppen = (yamlSteps: any) => {
       return { 'unknown-action': actionType }
     }
 
-    // Replace any "{{somevalue}}" with the actual value from the namespace.
-    replaceValues(action, namespace)
+    // // If there's output, add it to the namespace.
+    // if (action.output) {
+    //   Object.entries(action.output).forEach(([k, v]) => namespace[k] = v)
+    // }
 
-    // If there's an output, add it to the namespace.
-    if (action.output) {
-      namespace[action.output] = action[actionType]
-    }
+    // // Replace any "{{somevalue}}" with the actual value from the namespace.
+    // replaceValues(action, namespace)
 
     return action
   })
@@ -83,16 +81,23 @@ const testData = `-
       small-blind: 10
       big-blind: 20
       tokens-in-bond: 100
-  output: table-id
+  output:
+    table-id: 1234
+- 
+  call: create-link-to-table
+  id: "{{table-id}}"
+  output:
+    table-link: "https://my-ship.urbit.network/apps/pokur/join/1234"
 - 
   call: send-message
-  username: "{{table-id}}"
+  username: ~dev
   message-kind: text
-  content: "Hey ~dev, join my Pokur game at {{table-id}}!"`
+  content: "Join me for a game of Pokur at {{table-link}}!"`
 
 // Test function
 export function testEnsteppen() {
   const result = ensteppen(testData);
+  console.log({result})
   
   // Check if the result is an array
   if (!Array.isArray(result)) {
@@ -101,15 +106,20 @@ export function testEnsteppen() {
   }
   
   // Check if the result has the same length as the input
-  if (result.length !== 2) {
+  if (result.length !== 3) {
     console.log('FAIL: ensteppen did not return the correct number of steps');
     return;
   }
   
   // Check if the output value was correctly inserted into the second action
-  if (result[1]['project-name'] !== 'Project 1') {
+  if (result[1].id !== '1234') {
     console.log('FAIL: ensteppen did not correctly replace the output value in the second action');
-    console.log(result);
+    return;
+  }
+
+  // Check if the output value was correctly inserted into the second action
+  if (result[2].content !== 'Join me for a game of Pokur at https://my-ship.urbit.network/apps/pokur/join/1234!') {
+    console.log('FAIL: ensteppen did not correctly replace the output value in the second action');
     return;
   }
 

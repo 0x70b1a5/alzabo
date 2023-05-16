@@ -105,8 +105,6 @@
 ++  on-peek
   |=  p=path
   ^-  (unit (unit cage))
-  ~&  >>  'got scried'
-  ~&  >>  p
   ?+    +.p  (on-peek:def p)
       [%has-api-key ~]
     ``json+!>(b+?!(=(~ `@`api-key.state)))
@@ -129,7 +127,6 @@
     ~&  >  "poked with act:"
     ~&  >  act
     =/  coll  -.act
-    ~&  >  coll
     ?-    -.+.act
         %get-collections
       :_  state
@@ -190,7 +187,6 @@
         !!
       =/  body  
         (crip "\{ \"input\": \"{(trip +.+.act)}\", \"model\": \"text-embedding-ada-002\" }")
-      ~&  >>>  body
       :_  state
       :_  ~
       %^  request-card  /create-embeddings  %post
@@ -199,7 +195,6 @@
         %create-completion
       ?~  api-key.state  
         !!
-      ~&  >>>  +.+.act
       :: TODO save your chat messages locally
       :_  state
       :_  ~
@@ -208,8 +203,6 @@
     ::
         %save-api-key
       =/  key  key.+.+.act
-      ~&  >  'got key'
-      ~&  >  key
       `state(api-key key)
     ==
   ++  base  "http://localhost:8000/api/v1"

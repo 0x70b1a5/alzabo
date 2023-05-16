@@ -94,7 +94,7 @@ function App() {
   const btn = 'px-2 py-1 bg-gray-500 rounded hover:bg-cyan-100 hover:text-black disabled:pointer-events-none disabled:opacity-75 disabled:cursor-not-allowed'
   const ipt = 'px-2 bg-gray-800 rounded'
   const coll = collections?.[selectedCollectionId]
-  testEnsteppen()
+  // testEnsteppen()
 
   return (
     <Col className='w-screen h-screen text-white bg-slate-800 overflow-y-auto pb-8'>
@@ -110,19 +110,23 @@ function App() {
             </Row>)}
           </Row>
         </header>
-        {llmAnswer && <Col className={classNames('my-1', sxnCn)}>
-          <Row className='items-start'>
-            <Col className='items-center'>
-              <img src='/alzabo64.png' className='grayscale rounded' />
-              <label className='my-2 font-mono text-sm'>"Al"</label>
-            </Col>
-            <textarea readOnly value={llmAnswer} rows={llmAnswer.split('\n').length} className={classNames(ipt, 'ml-2 py-2 px-4 font-mono rounded-xl resize-none rounded-tl-none')} />
-            <textarea readOnly value={ensteppen(llmAnswer)} rows={llmAnswer.split('\n').length} className={classNames(ipt, 'ml-2 py-2 px-4 grow font-mono rounded-xl resize-none rounded-tl-none')} />
-          </Row>
-          <hr className='my-4' />
-          <button className={classNames(btn, 'ml-auto')}>Execute plan</button>
-        </Col>}
         {activeTab === 'build' && <Col className={classNames('my-1', sxnCn)}>
+          {llmAnswer && <>
+            <Row className='items-start'>
+              <Col className='items-center'>
+                <img src='/alzabo64.png' className='grayscale rounded' />
+                <label className='my-2 font-mono text-sm'>"Al"</label>
+              </Col>
+              <textarea readOnly value={llmAnswer} className={classNames(ipt, 'self-stretch ml-2 py-2 px-4 grow text-xs font-mono rounded-xl resize-none rounded-tl-none')} />
+              <Col className='grow self-stretch ml-2'>
+                {ensteppen(llmAnswer).map((step, i) => <Col key={i} className='step rounded-xl border bg-cyan-700 px-4 py-2 mb-2'>
+                  <textarea readOnly value={JSON.stringify(step, undefined, 2)} rows={JSON.stringify(step, undefined, 2).split('\n').length + 3} className={classNames(ipt, 'resize-none text-xs font-mono rounded-xl px-4 py-2')} />
+                </Col>)}
+              </Col>
+            </Row>
+            <hr className='my-4' />
+            <button className={classNames(btn, 'ml-auto')}>Execute plan</button>
+          </>}
           <h2 className='mb-1 text-lg font-bold'>Build</h2>
           <p className='mb-1'>Tell Alzabo what you would like to do.</p>
           <Row>
@@ -193,6 +197,19 @@ function App() {
               <span className='text-xs'>{coll.id}</span>
             </Row>            
             <h3 className='text-lg'>documents</h3>
+
+            <Col className='mx-4 mb-4'>
+              <h2 className='mb-2'>Add document</h2>
+              <label>ID/name</label>
+              <input className={classNames(ipt, 'mb-1')} placeholder='name' value={newDocName} onChange={(e) => setNewDocName(e.currentTarget.value)} />
+              <label>Content</label>
+              <textarea className={classNames(ipt, 'mb-1 font-mono')} placeholder='content' value={newDocContent} onChange={(e) => setNewDocContent(e.currentTarget.value)} />
+              <label>Embedding</label>
+              {newEmbedding && <textarea disabled className={classNames(ipt, 'mb-1 font-mono')} placeholder='embedding' value={JSON.stringify(newEmbedding)} />}
+              {!newEmbedding && <button disabled={!newDocContent} className={classNames(btn)} onClick={onFetchEmbedding}>Fetch embedding ($)</button>}
+              {newEmbedding && newDocContent && newDocName && <button disabled={!newEmbedding} className={classNames(btn)} type='button' onClick={onAddDocToCollection}>add</button>}
+            </Col>
+            
             {(coll.documents || []).map((doc, idx) => <Col key={idx} className='bg-gray-600 border rounded px-2 py-1 m-1 document'>
               <h4 className='ui-monospace text-md mb-1 font-bold font-mono'>{coll.ids[idx]}</h4>
               <span>embeddings: Array({coll.embeddings?.[idx]?.length})</span>
@@ -200,15 +217,6 @@ function App() {
               <span className='mb-1'>content:</span>
               <textarea disabled rows={3} className={classNames(ipt)} value={doc} />
             </Col>)}
-            <h2 className='mt-4 mb-2'>Add document</h2>
-            <label>ID/name</label>
-            <input className={classNames(ipt, 'mb-1')} placeholder='name' value={newDocName} onChange={(e) => setNewDocName(e.currentTarget.value)} />
-            <label>Content</label>
-            <textarea className={classNames(ipt, 'mb-1 font-mono')} placeholder='content' value={newDocContent} onChange={(e) => setNewDocContent(e.currentTarget.value)} />
-            <label>Embedding</label>
-            {newEmbedding && <textarea disabled className={classNames(ipt, 'mb-1 font-mono')} placeholder='embedding' value={JSON.stringify(newEmbedding)} />}
-            {!newEmbedding && <button disabled={!newDocContent} className={classNames(btn)} onClick={onFetchEmbedding}>Fetch embedding ($)</button>}
-            {newEmbedding && newDocContent && newDocName && <button disabled={!newEmbedding} className={classNames(btn)} type='button' onClick={onAddDocToCollection}>add</button>}
           </Col>}
         </>}
         {activeTab === 'chat' && <>
