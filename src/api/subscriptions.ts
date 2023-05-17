@@ -10,6 +10,7 @@ export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: 
       parsed = JSON.parse(rawUpdate)
     } catch (err) {
       console.error('Failed to parse JSON', rawUpdate)
+      alert('Could not parse a JSON update. Check that Chroma is running correctly.')
       return
     }
     const { type, update } = parsed

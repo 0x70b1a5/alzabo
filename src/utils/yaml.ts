@@ -30,8 +30,20 @@ export const ensteppen = (yamlSteps: any) => {
   const actions = deyamlinate(yamlSteps)
   if (!validateYamlSteps(actions)) return []
   let acktions = (actions as unknown as any[])
+  return acktions.map((action: any) => {
+    let actionType = action.call as string
+    // @ts-ignore
+    if (!(actionType in Actions) || !(Actions[actionType])) {
+      debugger
+      return { 'unknown-action': actionType }
+    }
+    // @ts-ignore
+    const newAction = Actions[actionType]
+    Object.entries(action).forEach(([k, v]) => {
+      if (newAction[k] !== undefined) newAction[k] = v
+    })
+    return newAction
   // const namespace: { [key: string]: any } = {}
-
   // const replaceValues = (obj: any, ns: { [key: string]: any }) => {
   //   for (let key in obj) {
   //     if (typeof obj[key] === "object" && obj[key] !== null) {
@@ -46,21 +58,13 @@ export const ensteppen = (yamlSteps: any) => {
   //   }
   // };
 
-  return acktions.map((action: any) => {
-    let actionType = action.call
-    if (!(actionType in Actions)) {
-      return { 'unknown-action': actionType }
-    }
-
     // // If there's output, add it to the namespace.
     // if (action.output) {
     //   Object.entries(action.output).forEach(([k, v]) => namespace[k] = v)
     // }
-
     // // Replace any "{{somevalue}}" with the actual value from the namespace.
     // replaceValues(action, namespace)
 
-    return action
   })
 }
 // Test data
