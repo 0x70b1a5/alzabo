@@ -114,7 +114,7 @@ export const Actions = {
     'desk-name': '',
     file: '',  
   },
-  'create-table': {  
+  'new-table': {  
     host: '',
     tokenized: {
       metadata: '',
@@ -153,4 +153,34 @@ export const Actions = {
   'create-link-to-table': {
     id: 0
   },
+}
+
+export const AppsByAction = {
+  'send-message': 'pongo',
+  'send-reaction': 'pongo',
+  'call': 'pongo',
+  'make-conversation': 'pongo',
+  'make-invite': 'pongo',
+  'send-message-to-group': 'pongo',
+  'send-reaction-to-group': 'pongo',
+  'call-group': 'pongo',
+  'create-project': 'ziggurat',
+  'delete-project': 'ziggurat',
+  'add-desk-to-project': 'ziggurat',
+  'remove-desk-from-project': 'ziggurat',
+  'publish-contract': 'ziggurat',
+  'publish-gall-app': 'ziggurat',
+  'create-file': 'ziggurat',
+  'create-file-from-template': 'ziggurat',
+  'edit-file': 'ziggurat',
+  'delete-file': 'ziggurat',
+  'new-table': 'pokur',
+  'start-game': 'pokur',
+  'create-link-to-table': 'pokur' 
+}
+
+export const AppActionTypes = {
+  ziggurat: 'ziggurat-action',
+  pokur: 'pokur-player-action',
+  pongo: 'pongo-action',
 }

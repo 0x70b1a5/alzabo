@@ -113,7 +113,7 @@ delete-file:
 #
 # 3. Pokur
 #
-create-table:
+new-table:
   host: string
   tokenized:
     metadata: string
@@ -169,7 +169,7 @@ Recommendations:
 - Send a direct message to another ship
 Response:
 - 
-  call: create-table
+  call: new-table
   tokenized:
     metadata: ''
     symbol: ZIG
@@ -194,5 +194,5 @@ Response:
   call: send-message
   username: ~dev
   message-kind: text
-    content: "Hey! Join us at {{table-link}} :)"
+  content: "Hey! Join us at {{table-link}} :)"
 `

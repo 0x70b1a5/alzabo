@@ -1,4 +1,4 @@
-import { useAlzaboStore } from '../stores/store'
+import { useAlzaboStore } from '../stores/alzaboStore'
 import { Row } from './RowCol'
 
 export const LoadingOverlay: React.FC = () => {

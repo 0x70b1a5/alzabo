@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
 import { Input } from 'postcss'
-import { useAlzaboStore } from './stores/store'
+import { useAlzaboStore } from './stores/alzaboStore'
 import classNames from 'classnames'
 import { LoadingOverlay } from './components/LoadingOverlay'
 import { Col, Row } from './components/RowCol'
 import api from './api/index'
 import { AskStages } from './constants/stages'
-import { deyamlinate, ensteppen, testEnsteppen } from './utils/yaml'
+import { deyamlinate, ensteppen, rose, testEnsteppen } from './utils/yaml'
+import { SettingsTab } from './components/SettingsTab'
+import { AppsByAction ,AppActionTypes } from './constants/actions'
 
 function App() {
-  const { activeTab, askStage, setActiveTab, ask, setAsk, llmAnswer, addDocumentToCollection, collections, createCollection, createEmbeddings, getCollections, getCollection, hasApiKey, init, loading, model, newEmbedding, queryCollection, queryResults, saveApiKey, selectedCollectionId, setSelectedCollectionId, setSelectedDocument, setAskStage, setHasApiKey, setLoading, setNewEmbedding, setQueryResults, tabs, updateDocument } = useAlzaboStore();
+  const { activeTab, askStage, sxnCn, ipt, btn, newApiKey, editApiKey, setEditApiKey, setNewApiKey, setActiveTab, ask, setAsk, llmAnswer, addDocumentToCollection, collections, createCollection, createEmbeddings, getCollections, getCollection, hasApiKey, init, loading, model, newEmbedding, queryCollection, queryResults, saveApiKey, selectedCollectionId, setSelectedCollectionId, setSelectedDocument, setAskStage, setHasApiKey, setLoading, setNewEmbedding, setQueryResults, tabs, updateDocument } = useAlzaboStore();
   const [initted, setInitted] = useState(false)
-  const [editApiKey, setEditApiKey] = useState(false)
   const [newDocContent, setNewDocContent] = useState('')
   const [newDocName, setNewDocName] = useState('')
-  const [newApiKey, setNewApiKey] = useState('')
   const [query, setQuery] = useState('')
   const [nResults,setNResults] = useState('5')
   const [newCollectionName, setNewCollectionName] = useState('')
@@ -63,16 +63,10 @@ function App() {
     }
   }
 
-  const onSaveApiKey = async () => {
-    saveApiKey(newApiKey)
-    if (!await api.scry({ app: 'alzabo', path: '/has-api-key' })) return
-    setNewApiKey('')
-    setHasApiKey(true)
-    setEditApiKey(false)
-  }
-
   const onFetchEmbedding = async () => {
+    setLoading('Fetching embedding...')
     await createEmbeddings(newDocContent)
+    setLoading('')
   }
 
   const onQuery = async () => {
@@ -90,9 +84,26 @@ function App() {
     }
   }
 
-  const sxnCn = 'bg-gray-700 rounded-xl shadow border p-8 m-10'
-  const btn = 'px-2 py-1 bg-gray-500 rounded hover:bg-cyan-100 hover:text-black disabled:pointer-events-none disabled:opacity-75 disabled:cursor-not-allowed'
-  const ipt = 'px-2 bg-gray-800 rounded'
+  const onApprove = async () => {
+    if (!window.confirm('Are you sure you want to approve this plan?')) return
+    const steps = ensteppen(llmAnswer);
+    for (let i = 0; i < steps.length; i++) {
+      const [stepType, step] = steps[i];
+      // @ts-ignore
+      const app = AppsByAction[stepType];
+      // @ts-ignore
+      const mark = AppActionTypes[AppsByAction[stepType]];
+      setLoading(`Poking ${app} with ${stepType}...`);
+      await api.poke({ app, mark, json: { [stepType]: step } });
+    }
+    setLoading('')
+
+  }
+
+  const isStepSus = (s: string) => {
+    return s.indexOf('object Object') > 0
+  }
+
   const coll = collections?.[selectedCollectionId]
   // testEnsteppen()
 
@@ -117,15 +128,23 @@ function App() {
                 <img src='/alzabo64.png' className='grayscale rounded' />
                 <label className='my-2 font-mono text-sm'>"Al"</label>
               </Col>
-              <textarea readOnly value={llmAnswer} className={classNames(ipt, 'self-stretch ml-2 py-2 px-4 grow text-xs font-mono rounded-xl resize-none rounded-tl-none')} />
+              <textarea value={llmAnswer} rows={rose(llmAnswer)} className={classNames(ipt, 'self-stretch ml-2 py-2 px-4 grow text-xs font-mono rounded-xl resize-none rounded-tl-none')} />
               <Col className='grow self-stretch ml-2'>
-                {ensteppen(llmAnswer).map((step, i) => <Col key={i} className='step rounded-xl border bg-cyan-700 px-4 py-2 mb-2'>
-                  <textarea readOnly value={JSON.stringify(step, undefined, 2)} rows={JSON.stringify(step, undefined, 2).split('\n').length + 3} className={classNames(ipt, 'resize-none text-xs font-mono rounded-xl px-4 py-2')} />
+                {ensteppen(llmAnswer).map(([stepType, step], i) => <Col key={i} className='step rounded-xl border bg-cyan-700 px-4 py-2 mb-2 relative'>
+                  {isStepSus(JSON.stringify(step)) && <Row className='mb-2 px-2 rounded bg-rose-400'>
+                    Possible errors detected.  <br/>
+                    Unexpected output may result if plan executed.  <br/>
+                    Recommended action: repeat query to Alzabo. <br/>
+                  </Row>}
+                  <Row className='rounded bg-gray-600 px-1 mb-1'>{i+1}. {stepType}</Row>
+                  <textarea value={JSON.stringify(step, undefined, 2)} rows={rose(JSON.stringify(step, undefined, 2))} className={classNames(ipt, 'resize-none text-xs font-mono rounded-xl px-4 py-2')} />
                 </Col>)}
               </Col>
             </Row>
+            <Row>
+            </Row>
+            <button onClick={onApprove} className={classNames(btn, 'text-xl text-black !bg-cyan-200 ml-auto hover:!bg-gray-100')}>APPROVE & EXECUTE</button>
             <hr className='my-4' />
-            <button className={classNames(btn, 'ml-auto')}>Execute plan</button>
           </>}
           <h2 className='mb-1 text-lg font-bold'>Build</h2>
           <p className='mb-1'>Tell Alzabo what you would like to do.</p>
@@ -142,19 +161,12 @@ function App() {
                     '!bg-gray-700 border-gray-500': askStage < stageIdx,
                     'rounded-tl-xl rounded-bl-xl': stageIdx === 0,
                     'rounded-tr-xl rounded-br-xl': stageIdx === AskStages.length - 1 })}>
-                {askStage > stageIdx ? '✔ ' : ''}{stageName}
+                {askStage < stageIdx ? '🌕 ' : ''}
+                {askStage === stageIdx ? '🌓 ' : ''}
+                {askStage > stageIdx ? '🌑 ' : ''}
+                {stageName}
               </Row>
             </Col>)}
-          </Row>
-        </Col>}
-        {activeTab === 'settings' && <Col className={classNames('my-1', sxnCn)}>
-          <h2 className='mb-1 text-lg font-bold'>Settings</h2>
-          <Row>
-            {(editApiKey || !hasApiKey) ? <Row>
-              <input className={classNames(ipt)} placeholder='api key' value={newApiKey} onChange={(e) => setNewApiKey(e.currentTarget.value)} />
-              <button className={classNames(btn, { 'cursor-not-allowed': Boolean(!newApiKey) })} disabled={!Boolean(newApiKey)} type='button' onClick={onSaveApiKey}>save</button>
-            </Row> 
-            : <button type='button' className={btn} onClick={() => setEditApiKey(true)}>edit API key</button>}
           </Row>
         </Col>}
         {activeTab === 'embeddings' && <>
@@ -225,6 +237,8 @@ function App() {
             <p>Chat directly with {model}.</p>
           </Col>
         </>}
+        {/* {activeTab === 'settings' && <SettingsTab />} */}
+        <SettingsTab />
       </Col>
       <LoadingOverlay />
       <Row className={classNames('fixed left-4 bottom-4')}>

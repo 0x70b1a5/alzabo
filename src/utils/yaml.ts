@@ -26,6 +26,8 @@ export const validateYamlSteps = (steps: any) => {
   return true
 }
 
+export const rose = (j: any) => j.split('\n').length + 3
+
 export const ensteppen = (yamlSteps: any) => {
   const actions = deyamlinate(yamlSteps)
   if (!validateYamlSteps(actions)) return []
@@ -35,14 +37,14 @@ export const ensteppen = (yamlSteps: any) => {
     // @ts-ignore
     if (!(actionType in Actions) || !(Actions[actionType])) {
       debugger
-      return { 'unknown-action': actionType }
+      return [actionType, null]
     }
     // @ts-ignore
     const newAction = Actions[actionType]
     Object.entries(action).forEach(([k, v]) => {
       if (newAction[k] !== undefined) newAction[k] = v
     })
-    return newAction
+    return [actionType, newAction]
   // const namespace: { [key: string]: any } = {}
   // const replaceValues = (obj: any, ns: { [key: string]: any }) => {
   //   for (let key in obj) {
@@ -69,7 +71,7 @@ export const ensteppen = (yamlSteps: any) => {
 }
 // Test data
 const testData = `- 
-  call: create-table
+  call: new-table
   tokenized:
     metadata: ''
     symbol: ZIG
@@ -116,13 +118,13 @@ export function testEnsteppen() {
   }
   
   // Check if the output value was correctly inserted into the second action
-  if (result[1].id !== '1234') {
+  if (result[1][1].id !== '1234') {
     console.log('FAIL: ensteppen did not correctly replace the output value in the second action');
     return;
   }
 
   // Check if the output value was correctly inserted into the second action
-  if (result[2].content !== 'Join me for a game of Pokur at https://my-ship.urbit.network/apps/pokur/join/1234!') {
+  if (result[2][1].content !== 'Join me for a game of Pokur at https://my-ship.urbit.network/apps/pokur/join/1234!') {
     console.log('FAIL: ensteppen did not correctly replace the output value in the second action');
     return;
   }

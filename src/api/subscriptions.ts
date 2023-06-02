@@ -1,5 +1,5 @@
 import { StoreApi } from 'zustand';
-import { AlzaboStore } from '../stores/store';
+import { AlzaboStore } from '../stores/alzaboStore';
 import { OurCollection } from '../types/types';
 
 export const handleAlzaboUpdate = (get: StoreApi<AlzaboStore>['getState'], set: StoreApi<AlzaboStore>['setState']) => {
