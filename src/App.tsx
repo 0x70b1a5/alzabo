@@ -19,6 +19,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [nResults,setNResults] = useState('5')
   const [newCollectionName, setNewCollectionName] = useState('')
+  const [answerOverride, setAnswerOverride] = useState('')
 
   useEffect(() => {
     if (!initted) init()
@@ -105,6 +106,8 @@ function App() {
   }
 
   const coll = collections?.[selectedCollectionId]
+  const answerToUse = answerOverride ? answerOverride : llmAnswer
+  const steps = answerToUse ? ensteppen(answerToUse) : []
   // testEnsteppen()
 
   return (
@@ -122,28 +125,41 @@ function App() {
           </Row>
         </header>
         {activeTab === 'build' && <Col className={classNames('my-1', sxnCn)}>
-          {llmAnswer && <>
+          {answerToUse && <>
             <Row className='items-start'>
               <Col className='items-center'>
                 <img src='/alzabo64.png' className='grayscale rounded' />
                 <label className='my-2 font-mono text-sm'>"Al"</label>
               </Col>
-              <textarea value={llmAnswer} rows={rose(llmAnswer)} className={classNames(ipt, 'self-stretch ml-2 py-2 px-4 grow text-xs font-mono rounded-xl resize-none rounded-tl-none')} />
+              <Col className='grow'>
+                <textarea value={answerToUse} 
+                  rows={rose(answerToUse)} 
+                  className={classNames(ipt, 'ml-2 py-2 px-4 text-xs font-mono rounded-xl resize-none rounded-tl-none')} 
+                  onChange={(e) => setAnswerOverride(e.currentTarget.value)} />
+                {answerOverride && <button className={classNames(btn, 'mx-auto mt-1 text-sm')} 
+                  onClick={() => setAnswerOverride('')}>
+                    Undo changes</button>}
+                <textarea readOnly 
+                  className={classNames(ipt, 'ml-2 py-2 px-4 grow text-xs font-mono rounded-xl resize-none mt-1 !bg-cyan-600')} 
+                  value={`You can edit the above YAML to fine-tune parameters, or to produce a correct output in the event of an error by the AI.`}/>
+              </Col>
               <Col className='grow self-stretch ml-2'>
-                {ensteppen(llmAnswer).map(([stepType, step], i) => <Col key={i} className='step rounded-xl border bg-cyan-700 px-4 py-2 mb-2 relative'>
+                {steps.map(([stepType, step], i) => <Col key={i} className='step rounded-xl border bg-cyan-700 px-4 py-2 mb-2 relative'>
                   {isStepSus(JSON.stringify(step)) && <Row className='mb-2 px-2 rounded bg-rose-400'>
                     Possible errors detected.  <br/>
                     Unexpected output may result if plan executed.  <br/>
                     Recommended action: repeat query to Alzabo. <br/>
                   </Row>}
                   <Row className='rounded bg-gray-600 px-1 mb-1'>{i+1}. {stepType}</Row>
-                  <textarea value={JSON.stringify(step, undefined, 2)} rows={rose(JSON.stringify(step, undefined, 2))} className={classNames(ipt, 'resize-none text-xs font-mono rounded-xl px-4 py-2')} />
+                  <textarea readOnly value={JSON.stringify(step, undefined, 2)} rows={rose(JSON.stringify(step, undefined, 2))} className={classNames(ipt, 'resize-none text-xs font-mono rounded-xl px-4 py-2')} />
                 </Col>)}
               </Col>
             </Row>
             <Row>
             </Row>
-            <button onClick={onApprove} className={classNames(btn, 'text-xl text-black !bg-cyan-200 ml-auto hover:!bg-gray-100')}>APPROVE & EXECUTE</button>
+            <button disabled={!!steps.find(([stepType, step]) => stepType === 'yaml-error')}
+              onClick={onApprove} 
+              className={classNames(btn, 'text-xl text-black !bg-cyan-200 ml-auto hover:!bg-gray-100 border border-black disabled:border-dashed')}>APPROVE & EXECUTE</button>
             <hr className='my-4' />
           </>}
           <h2 className='mb-1 text-lg font-bold'>Build</h2>

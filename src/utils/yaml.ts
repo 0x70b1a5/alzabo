@@ -5,22 +5,21 @@ export const deyamlinate = (someYaml: string) => {
   try {
     return yaml.load(someYaml)
   } catch (e) {
-    console.error(e)
-    return null
+    return {error: e}
   }
 }
 
 export const validateYamlSteps = (steps: any) => {
   if (!steps) {
-    console.warn('not valid: steps null')
+    // console.warn('not valid: steps null')
     return false
   }
   if (!Array.isArray(steps) ) {
-    console.warn('not valid: steps not array')
+    // console.warn('not valid: steps not array')
     return false
   }
   if (steps.find(step => !Object.keys(Actions).includes(step.call))) {
-    console.warn('not valid: steps not all in Actions', steps)
+    // console.warn('not valid: steps not all in Actions', steps)
     // return false
   }
   return true
@@ -29,8 +28,10 @@ export const validateYamlSteps = (steps: any) => {
 export const rose = (j: any) => j.split('\n').length + 3
 
 export const ensteppen = (yamlSteps: any) => {
-  const actions = deyamlinate(yamlSteps)
-  if (!validateYamlSteps(actions)) return []
+  const actions = deyamlinate(yamlSteps) as any
+  if (!validateYamlSteps(actions)) {
+    return [['yaml-error', actions]]
+  }
   let acktions = (actions as unknown as any[])
   return acktions.map((action: any) => {
     let actionType = action.call as string
