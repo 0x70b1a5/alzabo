@@ -85,11 +85,10 @@ function App() {
     }
   }
 
-  const onApprove = async () => {
+  const onApprove = async (planSteps: any[][]) => {
     if (!window.confirm('Are you sure you want to approve this plan?')) return
-    const steps = ensteppen(llmAnswer);
-    for (let i = 0; i < steps.length; i++) {
-      const [stepType, step] = steps[i];
+    for (let i = 0; i < planSteps.length; i++) {
+      const [stepType, step] = planSteps[i];
       // @ts-ignore
       const app = AppsByAction[stepType];
       // @ts-ignore
@@ -158,7 +157,7 @@ function App() {
             <Row>
             </Row>
             <button disabled={!!steps.find(([stepType, step]) => stepType === 'yaml-error')}
-              onClick={onApprove} 
+              onClick={() => onApprove(steps)} 
               className={classNames(btn, 'text-xl text-black !bg-cyan-200 ml-auto hover:!bg-gray-100 border border-black disabled:border-dashed')}>APPROVE & EXECUTE</button>
             <hr className='my-4' />
           </>}
@@ -250,7 +249,7 @@ function App() {
         {activeTab === 'chat' && <>
           <Col className={classNames('my-1', sxnCn)}>
             <h2 className={classNames('mb-1 text-lg font-bold')}>Chat</h2>
-            <p>Chat directly with {model}.</p>
+            <p>Chat directly with {model}. (WIP)</p>
           </Col>
         </>}
         {/* {activeTab === 'settings' && <SettingsTab />} */}

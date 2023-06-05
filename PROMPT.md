@@ -114,6 +114,7 @@ delete-file:
 # 3. Pokur
 #
 new-table:
+  id: number
   host: string
   tokenized:
     metadata: string
@@ -170,6 +171,7 @@ Recommendations:
 Response:
 - 
   call: new-table
+  id: 0
   tokenized:
     metadata: ''
     symbol: ZIG

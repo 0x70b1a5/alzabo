@@ -115,6 +115,7 @@ export const Actions = {
     file: '',  
   },
   'new-table': {  
+    id: 0,
     host: '',
     tokenized: {
       metadata: '',

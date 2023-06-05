@@ -6,7 +6,7 @@ Alzabo is a natural-language assistant for interacting with the Uqbar software s
 ```
 User intent + Uqbar docs -> Recommender => Recommendations
 User intent + Recommendations -> Planner => Plan
-Plan -> Alzabo => a real action in userspace (sign txn, send message, etc)
+Plan -> Alzabo => a list of real actions in userspace (sign txn, send message, etc)
 ```
 
 ## Install
@@ -17,10 +17,12 @@ Plan -> Alzabo => a real action in userspace (sign txn, send message, etc)
 
 ### 1. Set up Chroma: 
 
+Requires Docker.
+
 ```sh
 git clone https://github.com/chroma-core/chroma 
 cd chroma
-docker-compose up -d --build chroma
+sudo docker-compose up -d --build chroma
 ```
 
 ### 2. Set up Urbit:

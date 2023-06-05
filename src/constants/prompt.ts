@@ -114,6 +114,7 @@ delete-file:
 # 3. Pokur
 #
 new-table:
+  id: string
   host: string
   tokenized:
     metadata: string
